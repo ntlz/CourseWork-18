@@ -1,9 +1,7 @@
-#include <map>
-#include <string>
+#include <utility>
 #include <vector>
 #include <set>
 #include <algorithm>
-#include <iostream>
 #include <map>
 #include <stack>
 
@@ -17,41 +15,62 @@ class graph
 public:
 	typedef vertex::vertex_ptr vertex_ptr;
 	typedef std::set<vertex> vertex_set;
+    typedef std::pair<vertex, vertex> edge;
+    typedef std::set<edge> edge_set;
+    
 
-	vertex_set& operator[](vertex v)
+	edge_set operator[](vertex v) const
 	{
-		return _graph[v];
+        edge_set res;
+        for (const auto& t : _edges)
+        {
+            if (v == t.first || v == t.second)
+                res.insert(t);
+        }
+        return move(res);
 	}
-	const vertex_set& operator[](const vertex v) const
-	{
-		return _graph.at(v);
-	}
+    edge_set operator[](event_type_ptr v) const
+    {
+        edge_set res;
+        for (const auto& t : _edges)
+        {
+            if (v == t.first.type || v == t.second.type)
+                res.insert(t);
+        }
+        return move(res);
+    }
+
+    void add_edge(vertex a, vertex b)
+    {
+        _edges.insert(std::make_pair(a, b));
+    }
 protected:	
-	std::map<vertex, vertex_set> _graph;
+	//std::map<vertex, vertex_set> incid_table;
+    edge_set _edges;
 
 public:
 
-	void modify();
-	void _visit(int max_length, std::stack<vertex>& path, std::vector<vertex_sequence>& result);
-	std::vector<vertex_sequence> dfs(int max_length, vertex start);
+    std::vector<vertex_sequence> dfs_stack(int max_length, vertex start);
+    void insert_edge(edge e);
+    void remove_edge(edge e);
 
 	graph();
 	~graph();
-	typename std::map<vertex, vertex_set>::iterator begin()
+	typename edge_set::iterator begin()
 	{
-		return _graph.begin();
+		return _edges.begin();
 	}
-	typename std::map<vertex, vertex_set>::iterator end()
+	typename edge_set::iterator end()
 	{
-		return _graph.end();
+		return _edges.end();
 	}
-	typename std::map<vertex, vertex_set>::const_iterator begin() const
+	typename edge_set::const_iterator begin() const
 	{
-		return _graph.begin();
+		return _edges.begin();
 	}
-	typename std::map<vertex, vertex_set>::const_iterator end() const
+	typename edge_set::const_iterator end() const
 	{
-		return _graph.end();
+		return _edges.end();
 	}
 	friend std::ostream& operator<<(std::ostream& out, const graph& g);
 };

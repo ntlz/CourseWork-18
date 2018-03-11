@@ -1,8 +1,0 @@
-Oriented graph { 
-E->C
-E->R
-C->E
-C->R
-R->E
-R->C
-}

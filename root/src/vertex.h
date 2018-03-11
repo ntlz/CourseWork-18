@@ -22,6 +22,7 @@ public:
 	event_type_ptr type;
 	vertex() { };
 	vertex(event_type_ptr et) { type = et; id = std::hash<std::string>()(type->type); }
+    vertex(vertex& v, int id) { type = v.type, this->id = id + 1; }
 	~vertex();
 
 	bool operator==(const vertex& v) const
@@ -37,6 +38,8 @@ public:
 		return this->id < v.id;
 	}
 };
-
+bool operator==(const vertex& v, const event_type_ptr& a);
+bool operator< (const vertex& v, const event_type_ptr& a);
+bool operator< (const event_type_ptr& a, const vertex& v);
 std::ostream& operator<<(std::ostream& out, const vertex& t);
 

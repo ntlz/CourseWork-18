@@ -1,5 +1,10 @@
 #include "events.h"
 
+bool operator<(const event_type_ptr & a, const event_type_ptr & b)
+{
+    return *a < *b;
+}
+
 std::ostream& operator<<(std::ostream& out, const event_type& t)
 {
 	out << t.type;

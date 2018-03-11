@@ -50,7 +50,22 @@ public:
 	{
 		this->seq = v;
 	}
-
+    typename std::vector<event_type_ptr>::iterator begin()
+    {
+        return seq.begin();
+    }
+    typename std::vector<event_type_ptr>::iterator end()
+    {
+        return seq.end();
+    }
+    typename std::vector<event_type_ptr>::const_iterator begin() const
+    {
+        return seq.begin();
+    }
+    typename std::vector<event_type_ptr>::const_iterator end() const
+    {
+        return seq.end();
+    }
 	bool operator<(const event_sequence& t) const
 	{
 		return std::lexicographical_compare(this->seq.begin(), this->seq.end(), t.seq.begin(), t.seq.end()); 
@@ -60,6 +75,6 @@ public:
 		return std::lexicographical_compare(this->seq.begin(), this->seq.end(), t.seq.begin(), t.seq.end());
 	}
 };
-
+bool operator<(const event_type_ptr& a, const event_type_ptr& b);
 std::ostream& operator<<(std::ostream& out, const event_type& t);
 std::ostream& operator<<(std::ostream& out, const event_sequence& t);
