@@ -33,12 +33,12 @@ std::vector<vertex_sequence> graph::dfs_stack(int max_length, vertex start)
         for (auto& r : (*this)[v])
         {
             if (r.first == v)
-            //cout << node.ver << " -> " << r << " : " << node.level << endl;
+            {
                 ver.push(r.second);
-            lvl.push(l + 1);
+                lvl.push(l + 1);
+            }
         }
     }
-
     return result;
 }
 

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+//#define SPLIT_DEBUG 
 
 template <class T>
 void dprint(T&& t, std::string file = "debug_output.txt")
@@ -175,16 +176,17 @@ bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int p
     incident_edges.erase(in);
     incident_edges.erase(out);
 
+#ifdef SPLIT_DEBUG
     std::cout << "w/o illegal in/out" << std::endl;
     for (auto& e : incident_edges)
         std::cout << e.first << "->" << e.second << std::endl;
-
+#endif // SPLIT_DEBUG
     event_graph.remove_edge(out);
 
     for (auto& e : incident_edges)
     {
-        if (e.first == illegal_seq[pos])
-            new_edges.insert(std::make_pair(new_vertex, e.second));
+        //if (e.first == illegal_seq[pos])
+            //new_edges.insert(std::make_pair(new_vertex, e.second));
         if (e.second == illegal_seq[pos])
             new_edges.insert(std::make_pair(e.first, new_vertex));
     }
@@ -197,10 +199,13 @@ bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int p
         event_graph.insert_edge(e);
     }
 
+#ifdef SPLIT_DEBUG
+
     dprint(event_graph);
     std::cout << "Graph" << std::endl;
     std::cout << event_graph << std::endl;
     std::cout << "\n\n";
+#endif //SPLIT_DEBUG
     return true;
     //std::set_union(_edges.begin(), _edges.end(), new_edges.begin(), new_edges.end(), incident_edges);
 }
@@ -218,13 +223,18 @@ vertex markov_algorithm::iterate_modifications(vertex_sequence& illegal_seq)
 void markov_algorithm::do_magic()
 {
     sort(all_event_seq.begin(), all_event_seq.end());
-    //std::cout << "1" << std::endl;
-
+    vertex temp;
     for (auto& el : event_graph) //по графу, пара - (вершина : вершина)
     {
+        if (el.first == temp)
+            continue;
         std::cout << "Now looking at " << el.first << std::endl;
         std::vector<vertex_sequence> vs = event_graph.dfs_stack(table_order, el.first); //для текущей вершины находим все пути длины 3
 
+        /*for (auto& path : vs)
+        {
+            std::cout << path << std::endl;
+        }*/
         for (auto& path : vs) // итерируемся по путям, проверяем их валидность
         {
             std::cout << path << std::endl;
@@ -235,6 +245,7 @@ void markov_algorithm::do_magic()
                 //std::cout << "resolve returned: " << flag << std::endl;
             }
         }
+        temp = el.first;
     }
 
 }
