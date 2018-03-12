@@ -2,9 +2,6 @@
 #include "graph.h"
 #include "vertex_sequence.h"
 
-#include <set>
-
-
 
 class markov_algorithm
 {

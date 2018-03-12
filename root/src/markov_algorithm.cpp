@@ -7,7 +7,7 @@
 template <class T>
 void dprint(T&& t, std::string file = "debug_output.txt")
 {
-    std::ofstream out(file, std::fstream::app);
+    std::ofstream out(file);
     out << t << std::endl;
     out.close();
 }
@@ -134,7 +134,7 @@ void markov_algorithm::build_graph()
 }
 bool markov_algorithm::resolve(vertex_sequence & illegal_sequence)
 {
-    std::cout << "Entered resolve: " << illegal_sequence << std::endl;
+    std::cout << "Illegal sequence in resolve: " << illegal_sequence << std::endl;
     try
     {
         vertex splitting_v = iterate_modifications(illegal_sequence);
@@ -151,7 +151,8 @@ bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int p
     vertex_sequence before;
     vertex_sequence after;
 
-    if (!(illegal_seq.is_valid(all_event_seq, 0, pos + 1, probability_thd, count_thd) || !(illegal_seq.is_valid(all_event_seq, pos, illegal_seq.get_size(), probability_thd, count_thd))))
+    if (!(illegal_seq.is_valid(all_event_seq, 0, pos + 1, probability_thd, count_thd) 
+          && illegal_seq.is_valid(all_event_seq, pos, illegal_seq.get_size() - 1, probability_thd, count_thd)))
         return false;
 
     std::cout << "Yay! Found split for vertex " << sv << std::endl;
@@ -197,9 +198,9 @@ bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int p
     }
 
     dprint(event_graph);
-    /*std::cout << "Graph" << std::endl;
+    std::cout << "Graph" << std::endl;
     std::cout << event_graph << std::endl;
-    std::cout << std::endl;*/
+    std::cout << "\n\n";
     return true;
     //std::set_union(_edges.begin(), _edges.end(), new_edges.begin(), new_edges.end(), incident_edges);
 }
@@ -218,16 +219,20 @@ void markov_algorithm::do_magic()
 {
     sort(all_event_seq.begin(), all_event_seq.end());
     //std::cout << "1" << std::endl;
-    for (auto& el : event_graph) //по графу, пара - (вершина : массив инцидентных ей)
+
+    for (auto& el : event_graph) //по графу, пара - (вершина : вершина)
     {
-        std::vector<vertex_sequence> vs = event_graph.dfs_stack(3, el.first); //для текущей вершины находим все пути длины 3
+        std::cout << "Now looking at " << el.first << std::endl;
+        std::vector<vertex_sequence> vs = event_graph.dfs_stack(table_order, el.first); //для текущей вершины находим все пути длины 3
+
         for (auto& path : vs) // итерируемся по путям, проверяем их валидность
         {
-            //std::cout << path << std::endl;
-            if (do_split && !(path.is_valid(all_event_seq, 0, all_event_seq.size(), probability_thd, count_thd)))
+            std::cout << path << std::endl;
+            if (do_split && !(path.is_valid(all_event_seq, probability_thd, count_thd)))
             {
                 bool flag = resolve(path);
-                std::cout << "resolve returned: " << flag << std::endl;
+                int r;
+                //std::cout << "resolve returned: " << flag << std::endl;
             }
         }
     }

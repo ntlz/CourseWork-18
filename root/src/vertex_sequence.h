@@ -50,7 +50,7 @@ public:
 	std::function<bool(const vertex_vector&)> _pred = [](const vertex_vector&) -> bool { return false; };
 
 	vertex_sequence & set_predicate(std::function<bool(const vertex_vector&)>);
-
+    bool is_valid(std::vector<event_sequence>& es, double probability_thrhld, double count_thrhld);
 	bool is_valid(std::vector<event_sequence>& es, int begin, int end, double probability_thrhld, double count_thrhld);
 
 
