@@ -5,10 +5,30 @@
 
 //#define SPLIT_DEBUG 
 
+using std::cout;
+using std::endl;
+
+template <class T>
+std::ostream& operator<<(std::ostream& out, const std::set<T>& t)
+{
+	for (const auto& r : t)
+	{
+		out << r << " ";
+	}
+	return out;
+}
+
+static auto lol = []() -> int 
+{
+	std::ofstream out("debug_output.txt");
+	out.close();
+	return 0;
+}();
+
 template <class T>
 void dprint(T&& t, std::string file = "debug_output.txt")
 {
-    std::ofstream out(file);
+    std::ofstream out(file, std::fstream::app);
     out << t << std::endl;
     out.close();
 }
@@ -135,7 +155,7 @@ void markov_algorithm::build_graph()
 }
 bool markov_algorithm::resolve(vertex_sequence & illegal_sequence)
 {
-    std::cout << "Illegal sequence in resolve: " << illegal_sequence << std::endl;
+    std::cout << "sequence to resolve: " << illegal_sequence << std::endl;
     try
     {
         vertex splitting_v = iterate_modifications(illegal_sequence);
@@ -146,6 +166,15 @@ bool markov_algorithm::resolve(vertex_sequence & illegal_sequence)
         std::cout << e.what();
         return false;
     }
+}
+bool markov_algorithm::almost_resolve(vertex_sequence & illegal_sequence)
+{
+	std::cout << "sequence to almost_resolve: " << illegal_sequence << std::endl;
+	for (int i = 1; i < illegal_sequence.get_size() - 1; i++)
+		if (!(illegal_sequence.is_valid(all_event_seq, 0, i + 1, probability_thd, count_thd)
+			&& illegal_sequence.is_valid(all_event_seq, i, illegal_sequence.get_size() - 1, probability_thd, count_thd)))
+			return false;
+	return true;
 }
 bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int pos)
 {
@@ -167,21 +196,21 @@ bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int p
     std::cout << "Incident edges: " << std::endl;
     for (auto& e : incident_edges)
     {
-        if (e.first == illegal_seq[pos - 1])
-            in = e;
-        if (e.second == illegal_seq[pos + 1])
-            out = e;
+		if (e.first == illegal_seq[pos - 1])
+			in = e;
+		if (e.second == illegal_seq[pos + 1])
+			out = e;
         std::cout << e.first << "->" << e.second << std::endl;
     }
-    incident_edges.erase(in);
-    incident_edges.erase(out);
 
+	incident_edges.erase(in);
+	incident_edges.erase(out);
 #ifdef SPLIT_DEBUG
     std::cout << "w/o illegal in/out" << std::endl;
     for (auto& e : incident_edges)
         std::cout << e.first << "->" << e.second << std::endl;
 #endif // SPLIT_DEBUG
-    event_graph.remove_edge(out);
+	event_graph.remove_edge(out);
 
     for (auto& e : incident_edges)
     {
@@ -212,7 +241,6 @@ bool markov_algorithm::_try_split(vertex_sequence& illegal_seq, vertex sv, int p
 
 vertex markov_algorithm::iterate_modifications(vertex_sequence& illegal_seq)
 {
-    
     for (int i = 1; i<illegal_seq.get_size() - 1; i++)
     {
         if (_try_split(illegal_seq, illegal_seq[i], i))
@@ -220,7 +248,7 @@ vertex markov_algorithm::iterate_modifications(vertex_sequence& illegal_seq)
     }
     throw std::exception("Nothing found!"); // если перебрали все разбиения и не можем получить легальные последовательности
 }
-void markov_algorithm::do_magic()
+void markov_algorithm::do_magic() // old but gold
 {
     sort(all_event_seq.begin(), all_event_seq.end());
     vertex temp;
@@ -247,5 +275,31 @@ void markov_algorithm::do_magic()
         }
         temp = el.first;
     }
+
+}
+
+void markov_algorithm::do_magic_alternatively()
+{
+	sort(all_event_seq.begin(), all_event_seq.end());
+	vertex temp;
+	for (auto& el : event_graph) //по графу, пара - (вершина : вершина)
+	{
+		if (el.first == temp)
+			continue;
+		std::cout << "Now looking at " << el.first << std::endl;
+
+		for (
+			auto seq = this->event_graph.dfs_stack_with_a_twist(table_order, el.first, [this](vertex_sequence& t) -> bool
+		{
+			return this->almost_resolve(t);
+		}); 
+			resolve(seq);
+			dprint(this->event_graph), seq = this->event_graph.dfs_stack_with_a_twist(table_order, el.first, [this](vertex_sequence& t) -> bool
+		{
+			return this->almost_resolve(t);
+		}));// with no delegate present, this is the most sane way to pass a member function as a callback
+
+		temp = el.first;
+	}
 
 }
