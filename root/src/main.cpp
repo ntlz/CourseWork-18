@@ -4,7 +4,7 @@
 #include <iostream>
 
 using namespace std;
-//#define DEBUG
+#define DEBUG
 
 int main(int argc, char** argv)
 {
@@ -19,7 +19,10 @@ int main(int argc, char** argv)
 
     markov_algorithm markov(trace, 0, 0, 3, true);
     markov.build_graph();
-    markov.do_magic();
+
+    //markov.do_magic(); // this is so last week..
+
+	markov.do_magic_alternatively(); 
 
 
     ofstream fout("output.txt");

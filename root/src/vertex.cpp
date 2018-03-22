@@ -19,6 +19,7 @@ bool operator<(const event_type_ptr & a, const vertex & v)
 std::ostream & operator<<(std::ostream & out, const vertex & t)
 {
 	//out << "\"{ type: " << *(t.type) << ", id: " << t.id << " }\"";
-	out << "\""<<*(t.type) << "(" << t.id << ")\"";
+	//out << "\""<<*(t.type) << "(" << t.id << ")\"";
+	out << "\"" << *(t.type) << "(" << t.id%10 << ")\"";
 	return out;
 }
