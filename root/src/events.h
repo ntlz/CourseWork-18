@@ -11,6 +11,7 @@ class event_type
 {
 public:
 	std::string type;
+    //char _e;
 
 	event_type()
 	{
@@ -20,6 +21,7 @@ public:
 	{
 		this->type = str;
 	}
+    //event_type(char e) { this->_e = e; }
 
 	bool operator==(const event_type& t) const
 	{
@@ -38,11 +40,11 @@ public:
 typedef std::shared_ptr<event_type> event_type_ptr;
 class event_sequence
 {
-public:
+private:
 	std::vector<event_type_ptr> seq;
 	double probability;
 	int count;
-
+public:
 	event_sequence() : count(0), probability(0)
 	{
 	}
@@ -50,6 +52,14 @@ public:
 	{
 		this->seq = v;
 	}
+    void push_back(event_type_ptr a)
+    {
+        this->seq.push_back(a);
+    }
+    void resize(int p)
+    {
+        this->seq.resize(p);
+    }
     typename std::vector<event_type_ptr>::iterator begin()
     {
         return seq.begin();
@@ -72,9 +82,11 @@ public:
 	}
 	bool operator==(const event_sequence& t) const
 	{
-		return std::lexicographical_compare(this->seq.begin(), this->seq.end(), t.seq.begin(), t.seq.end());
+		return std::equal(this->seq.begin(), this->seq.end(), t.seq.begin(), t.seq.end());
 	}
 };
 bool operator<(const event_type_ptr& a, const event_type_ptr& b);
 std::ostream& operator<<(std::ostream& out, const event_type& t);
 std::ostream& operator<<(std::ostream& out, const event_sequence& t);
+
+bool operator==(const event_type_ptr& a, const  event_type_ptr& b);

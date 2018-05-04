@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 
+#include <cmath>
 #include "events.h"
 
 #pragma once
@@ -19,16 +20,17 @@ public:
 protected:
 	
 public:
+    bool is_old = true;
 	size_t id;
 	event_type_ptr type;
-	vertex() { };
-	vertex(event_type_ptr et) { type = et; id = std::hash<std::string>()(type->type); }
-    vertex(vertex& v, int id) { type = v.type, this->id = id + 1; }
+    vertex() : type(new event_type("")) { id = -1; };
+	vertex(event_type_ptr et) { type = et; id = 0; }
+    vertex(vertex& v, int id) { type = v.type, this->id = id + std::abs(rand()) % 200;  is_old = false; } // используется только для новых вершин!
 	~vertex();
 
 	bool operator==(const vertex& v) const
 	{
-		return (this->id == v.id);
+		return (this->id == v.id && this->type == v.type);
 	}
 	bool operator!=(const vertex& v) const 
 	{
@@ -36,7 +38,7 @@ public:
 	}
 	bool operator<(const vertex& v) const
 	{
-		return this->id < v.id;
+		return std::pair<event_type_ptr, size_t>(this->type,  this->id) < std::pair<event_type_ptr, size_t>(v.type, v.id);
 	}
 };
 bool operator==(const vertex& v, const event_type_ptr& a);

@@ -1,4 +1,5 @@
 #include "markov_algorithm.h"
+#include "split_merge.h"
 
 #include <fstream>
 #include <iostream>
@@ -13,18 +14,23 @@ int main(int argc, char** argv)
 	vector<event_type_ptr> input_trace;
 
 	string trace;
-	fstream fin("input.txt");
-	fin >> trace;
+    vector<string> log;
+	fstream fin("input2.txt");
+    while (fin >> trace)
+        log.push_back(trace);
 	fin.close();
 
-    markov_algorithm markov(trace, 0, 0, 3, true);
-    markov.build_graph();
-    markov.do_magic();
+    split_merge sm(log, 3);
+    sm.build();
+
+//     markov_algorithm markov(trace, 0, 0, 4, true);
+//     markov.build_graph();
+//     markov.do_magic();
+//     ofstream fout("output.txt");
+//     fout << markov.event_graph;
+//     fout.close();
 
 
-    ofstream fout("output.txt");
-    fout << markov.event_graph;
-    fout.close();
 #ifdef DEBUG    
     for (auto& r : markov.all_event_seq)
     {

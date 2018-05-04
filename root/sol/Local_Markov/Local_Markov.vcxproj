@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\events.cpp" />
+    <ClCompile Include="..\..\src\graph.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\split_merge.cpp" />
+    <ClCompile Include="..\..\src\vertex.cpp" />
+    <ClCompile Include="..\..\src\vertex_sequence.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\events.h" />
+    <ClInclude Include="..\..\src\graph.h" />
+    <ClInclude Include="..\..\src\split_merge.h" />
+    <ClInclude Include="..\..\src\vertex.h" />
+    <ClInclude Include="..\..\src\vertex_sequence.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{781B207B-BBEE-4F70-9597-2CF38FC66402}</ProjectGuid>
     <RootNamespace>Local_Markov</RootNamespace>
@@ -109,23 +124,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="events.cpp" />
-    <ClCompile Include="graph.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="markov_algorithm.cpp" />
-    <ClInclude Include="markov_algorithm.h">
-      <FileType>CppCode</FileType>
-    </ClInclude>
-    <ClCompile Include="vertex.cpp" />
-    <ClCompile Include="vertex_sequence.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="events.h" />
-    <ClInclude Include="graph.h" />
-    <ClInclude Include="vertex.h" />
-    <ClInclude Include="vertex_sequence.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

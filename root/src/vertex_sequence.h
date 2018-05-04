@@ -62,3 +62,5 @@ bool  operator< (const vertex_sequence& a, const event_sequence& b);
 bool  operator< ( const event_sequence& a, const vertex_sequence& b);
 std::ostream& operator<<(std::ostream& out, const vertex_sequence& t);
 
+bool operator==(const event_sequence& a, const vertex_sequence& b);
+bool operator==(const vertex_sequence& a, const event_sequence& b);
