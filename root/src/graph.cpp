@@ -84,10 +84,11 @@ vertex graph::visit_seq(vertex_sequence & s)
 {
     edge_vector temp(_edges.begin(), _edges.end());
 
-    for (auto it = s.begin(); it != s.end() && it + 1 != s.begin(); it++)
+    for (auto it = s.begin(); it != s.end() && it + 1 != s.end(); it++)
     {
         (*find_if(temp.begin(), temp.end(), [&it](const edge& e) -> bool
         {
+			std::cout << *it << std::endl;
             return e.first() == *it && e.second() == *(it + 1);
         })).visit();
     }

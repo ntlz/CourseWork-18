@@ -25,7 +25,8 @@ protected:
     void process_ts();
     void replay_trace(std::string & tr);
     std::tuple<bool, bool> check_added(edge & e, const event_sequence& cur);
-    vertex_sequence recover_seq(const event_sequence & cur_seq, const vertex& cur_vertex);
+	void remove_invalid(std::vector<vertex_sequence> paths);
+	vertex_sequence recover_seq(const event_sequence & cur_seq, const vertex& cur_vertex);
     void build_init_ts();
 
     int _order;

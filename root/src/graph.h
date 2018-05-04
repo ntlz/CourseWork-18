@@ -22,6 +22,11 @@ public:
     {
         _trans = std::pair<vertex, vertex>(a, b);
     }
+	edge(vertex& a, vertex& b, short c)
+	{
+		_trans = std::pair<vertex, vertex>(a, b);
+		num_visits = c;
+	}
     vertex first()
     {
         return _trans.first;

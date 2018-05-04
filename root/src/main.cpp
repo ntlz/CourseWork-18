@@ -1,4 +1,3 @@
-#include "markov_algorithm.h"
 #include "split_merge.h"
 
 #include <fstream>
@@ -22,13 +21,6 @@ int main(int argc, char** argv)
 
     split_merge sm(log, 3);
     sm.build();
-
-//     markov_algorithm markov(trace, 0, 0, 4, true);
-//     markov.build_graph();
-//     markov.do_magic();
-//     ofstream fout("output.txt");
-//     fout << markov.event_graph;
-//     fout.close();
 
 
 #ifdef DEBUG    
