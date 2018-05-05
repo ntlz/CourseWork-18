@@ -2,27 +2,48 @@
 
 #include <fstream>
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 //#define DEBUG
 
 int main(int argc, char** argv)
 {
-    
-	vector<event_sequence> sequence_of_events;
-	vector<event_type_ptr> input_trace;
-
+	int o;
+	string file;
 	string trace;
-    vector<string> log;
-	fstream fin("input2.txt");
-    while (fin >> trace)
-        log.push_back(trace);
+	vector<string> log;
+	/*if (argc < 3)
+	{
+		cerr << "Usage: " << argv[0] << " order path_to_file" << endl;
+		return 1;
+	}
+	else
+	{
+		o = atoi(argv[1]);
+		file = argv[2];
+		ifstream fin(file);
+		if (!fin)
+		{
+			cerr << "File doesn't exist!" << endl;
+			return 1;
+		}
+		while (fin >> trace)
+			log.push_back(trace);
+		fin.close();
+
+		split_merge sm(log, o);
+		sm.build();
+	}*/
+	o = 3;
+	file = "input2.txt";
+	ifstream fin(file);
+	while (fin >> trace)
+		log.push_back(trace);
 	fin.close();
 
-    split_merge sm(log, 3);
-    sm.build();
-
-
+	split_merge sm(log, o);
+	sm.build();
 #ifdef DEBUG    
     for (auto& r : markov.all_event_seq)
     {

@@ -103,7 +103,9 @@ void split_merge::replay_trace(std::string& tr)
 		std::cout << "All sequences: " << std::endl;
 		for (auto t : paths)
 			std::cout << t << std::endl;
-		remove_invalid(paths);
+		//remove_invalid(paths);
+
+		//paths = _ts.dfs_stack(_order, current_vertex); //обновить пути после удаления!
         auto pi = std::find(paths.begin(), paths.end(), current_seq);
         if (pi == paths.end())
         {
@@ -112,6 +114,7 @@ void split_merge::replay_trace(std::string& tr)
         }
         else
             current_vertex = _ts.visit_seq(*pi);
+		remove_invalid(paths);
 		deb_print(_ts);
     }
 	for (int k = 0; k < _order - 1; k++)
@@ -262,60 +265,62 @@ std::tuple<bool, bool> split_merge::check_added(edge& e, const event_sequence& c
         if (*(t.begin() + 1) == e.second())
             forw.push_back(t);
 
-/*    for (int i = 0; i < _order - 2; i++)
-    {
-        for (auto & r : revs)
-        {
-            for (auto& f : forw)
-            {
-                event_sequence seqs;
-                vector<vertex> aaa;
-                aaa.resize(_order);
-                auto it = copy(r.begin() + i, r.end(), aaa.begin());
-                copy(f.begin() + 2, f.end() - (_order - i), it);
-                for (auto& u : aaa)
-                    seqs.push_back(u.type);
+	for (int i = 0; i < _order - 2; i++)
+	{
+		/*for (auto & r : revs)
+		{
+			for (auto& f : forw)
+			{
+				event_sequence seqs;
+				vector<vertex> aaa;
+				aaa.resize(_order);
 
-                if (_chains_to_num.find(seqs) == _chains_to_num.end())
-                {
-                    flag_inv = true; // мы нашли невалидную последовательность
-                    break;
-                }
-                if (seqs == cur)
-                    flag_des = true; //нашли нужную
-            }
-            if (flag_inv)
-                break;
-        }
-        if (flag_inv)
-            break;
-    }*/
-	for (auto & r : revs)
-	{
-		event_sequence seqs;
-		for (auto& k : r)
-			seqs.push_back(k.type);
-		if (_chains_to_num.find(seqs) == _chains_to_num.end())
-		{
-			flag_inv = true; // мы нашли невалидную последовательность
-			break;
+				//copy(b.begin() + 2, b.end() - b.size() + 2 + i, it);
+				auto it = copy(r.begin() + i, r.end(), aaa.begin());
+				copy(f.begin() + 2, f.end() - f.get_size() + 2 + i, it);
+				for (auto& u : aaa)
+					seqs.push_back(u.type);
+				std:cout << seqs << std::endl;
+				if (_chains_to_num.find(seqs) == _chains_to_num.end())
+				{
+					flag_inv = true; // мы нашли невалидную последовательность
+					break;
+				}
+				if (seqs == cur)
+					flag_des = true; //нашли нужную
+			}
+			if (flag_inv)
+				break;
 		}
-		if (seqs == cur)
-			flag_des = true; //нашли нужную	
-	}
-	for (auto & f : forw)
-	{
-		event_sequence seqs;
-		for (auto& k : f)
-			seqs.push_back(k.type);
-		if (_chains_to_num.find(seqs) == _chains_to_num.end())
-		{
-			flag_inv = true; // мы нашли невалидную последовательность
+		if (flag_inv)
 			break;
+	}*/
+		for (auto & r : revs)
+		{
+			event_sequence seqs;
+			for (auto& k : r)
+				seqs.push_back(k.type);
+			if (_chains_to_num.find(seqs) == _chains_to_num.end())
+			{
+				flag_inv = true; // мы нашли невалидную последовательность
+				break;
+			}
+			if (seqs == cur)
+				flag_des = true; //нашли нужную	
 		}
-		if (seqs == cur)
-			flag_des = true; //нашли нужную	
+		for (auto & f : forw)
+		{
+			event_sequence seqs;
+			for (auto& k : f)
+				seqs.push_back(k.type);
+			if (_chains_to_num.find(seqs) == _chains_to_num.end())
+			{
+				flag_inv = true; // мы нашли невалидную последовательность
+				break;
+			}
+			if (seqs == cur)
+				flag_des = true; //нашли нужную	
+		}
 	}
     return std::make_tuple(flag_inv, flag_des);
-    return std::make_tuple(true, true);
 }
