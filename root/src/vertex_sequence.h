@@ -16,6 +16,10 @@ public:
 	{
 		_group.push_back(v);
 	}
+	void pop_back()
+	{
+		_group.pop_back();
+	}
     int get_size()
     {
         return _group.size();

@@ -17,6 +17,8 @@ public:
     { }
     void build();
 
+	void refine();
+
 protected:
     void process_trace(std::string& trace);
     void get_pairs(std::string& tr);

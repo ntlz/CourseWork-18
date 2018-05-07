@@ -2,10 +2,32 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
 
 using namespace std;
 //#define DEBUG
+
+vector<string> parse_csv(ifstream& in)
+{
+	std::vector<std::string> result;
+	std::string line;
+
+	std::stringstream lineStream(line);
+	std::string cell;
+
+	while (std::getline(lineStream, cell, ','))
+	{
+		result.push_back(cell);
+	}
+	// This checks for a trailing comma with no data after it.
+	if (!lineStream && cell.empty())
+	{
+		// If there was a trailing comma then add an empty element.
+		result.push_back("");
+	}
+	return result;
+}
 
 int main(int argc, char** argv)
 {
@@ -36,8 +58,10 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "input2.txt";
+	file = "input3.txt";
+	//file = "input.csv";
 	ifstream fin(file);
+	//log = parse_csv(fin);
 	while (fin >> trace)
 		log.push_back(trace);
 	fin.close();

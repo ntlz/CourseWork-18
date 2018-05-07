@@ -42,10 +42,8 @@ class event_sequence
 {
 private:
 	std::vector<event_type_ptr> seq;
-	double probability;
-	int count;
 public:
-	event_sequence() : count(0), probability(0)
+	event_sequence()
 	{
 	}
 	event_sequence(std::vector<event_type_ptr> v) : event_sequence()
@@ -60,6 +58,10 @@ public:
     {
         this->seq.resize(p);
     }
+	int size()
+	{
+		return seq.size();
+	}
     typename std::vector<event_type_ptr>::iterator begin()
     {
         return seq.begin();

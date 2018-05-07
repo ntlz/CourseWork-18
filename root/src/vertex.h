@@ -23,11 +23,12 @@ public:
     bool is_old = true;
 	size_t id;
 	event_type_ptr type;
-    vertex() : type(new event_type("")) { id = -1; };
+	std::shared_ptr<bool> is_accepting = std::make_shared<bool>(false);
+	vertex() : type(new event_type("")) { id = -1; };
 	vertex(event_type_ptr et) { type = et; id = 0; }
     vertex(vertex& v, int id) { type = v.type, this->id = id + std::abs(rand()) % 200;  is_old = false; } // используется только для новых вершин!
 	~vertex();
-
+	void set_accepting() { *is_accepting = true; }
 	bool operator==(const vertex& v) const
 	{
 		return (this->id == v.id && this->type == v.type);

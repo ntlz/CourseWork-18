@@ -100,11 +100,12 @@ protected:
 public:
 
     std::vector<vertex_sequence> dfs_stack(int max_length, vertex start, bool reverse = false);
+	bool check_exists(vertex & a);
     void insert_edge(edge e);
     void remove_edge(edge e);
     void copy_out_edges(vertex& a, vertex& b);
     vertex visit_seq(vertex_sequence& s);
-    const edge& find_edge(const vertex & a, const vertex & b);
+    const edge find_edge(const vertex & a, const vertex & b);
     //edge& find_edge(const vertex & a, const vertex & b);
     vertex get_init_state() { return vertex(); }
 

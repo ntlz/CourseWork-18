@@ -8,7 +8,7 @@ std::vector<vertex_sequence> graph::dfs_stack(int max_length, vertex start, bool
     std::stack<vertex> ver;
     std::stack<vertex> path;
     std::vector<vertex_sequence> result;
-
+	vertex init = get_init_state();
     ver.push(start);
     lvl.push(1);
     for (; !ver.empty(); )
@@ -52,7 +52,12 @@ std::vector<vertex_sequence> graph::dfs_stack(int max_length, vertex start, bool
     }
     return result;
 }
-
+bool graph::check_exists(vertex& a)
+{
+	return find_if(_edges.begin(), _edges.end(), [a](const edge b) -> bool {
+		return b.first() == a || b.second() == a;
+	}) != _edges.end();
+}
 void graph::insert_edge(edge e)
 {
     _edges.insert(e);
@@ -63,21 +68,36 @@ void graph::remove_edge(edge e)
     _edges.erase(e);
 }
 
-const edge& graph::find_edge(const vertex& a, const vertex& b)
+const edge graph::find_edge(const vertex& a, const vertex& b)
 {
-    return *find_if(_edges.begin(), _edges.end(), [&a, &b](const edge& e) -> bool
+    auto w = find_if(_edges.begin(), _edges.end(), [&a, &b](const edge& e) -> bool
     {
         return e.first() == a && e.second() == b;
     });
+	if (w == _edges.end())
+	{
+		vertex p = a;
+		edge t(p, vertex(p, p.id));
+		t.visit();
+		insert_edge(t);
+		return t;
+	}
+	else
+		return *w;
 }
+
 
 void graph::copy_out_edges(vertex & a, vertex & b)
 {
-    edge_vector t = (*this)[a];
-    for (auto n : t)
+    edge_vector q = (*this)[a];
+    for (auto n : q)
     {
-        if (n.first() == a)
-            this->add_edge(b, n.second());
+		if (n.first() == a && n._is_visited)
+		{
+			edge t(b, n.second());
+			t.visit();
+			insert_edge(t);
+		}
     }
 }
 vertex graph::visit_seq(vertex_sequence & s)
@@ -109,10 +129,19 @@ graph::~graph()
 
 std::ostream & operator<<(std::ostream & out, const graph & g)
 {
-	out << "Digraph { \n";
+	out << "Digraph {\n";
+	out << "node [shape = doublecircle];";
+	for (const auto& v : g._edges)
+	{
+		if (*(v.first().is_accepting))
+			out << v.first() << " ";
+		if (*(v.second().is_accepting))
+			out << v.second() << " ";
+	}
+	out << ";\nnode [shape = circle];\n";
     for (const auto& v : g._edges)
     {
-        out << v.first() << "->" << v.second() << std::endl;
+        out << v.first() << "->" << v.second() << "[label = \"" << *(v.second().type) << "\"]" << std::endl;
     }
 	out << "}";
 	return out;

@@ -20,23 +20,33 @@ void split_merge::build()
 {
     for (std::string t : _log)
         process_trace(t);
-
     build_init_ts();
     process_ts();
+	refine();
+	dprint(_ts);
+}
+
+void split_merge::refine()
+{
+	std::set<edge> to_remove;
+	for (const edge& t : _ts)
+	{
+		if (!t._is_visited)
+			to_remove.insert(t);
+	}
+	for (auto& p : to_remove)
+		_ts.remove_edge(p);
 }
 void split_merge::process_trace(std::string& tr)
 {
     get_pairs(tr);
     get_chains(tr);
 }
-
 void split_merge::get_pairs(std::string& tr)
 {
     for (int i = 0; i < tr.length() - 1; ++i)
     {
         std::pair<event_type_ptr, event_type_ptr> f = std::pair<event_type_ptr, event_type_ptr>(event_type_ptr(new event_type(tr.substr(i,1))), event_type_ptr(new event_type(tr.substr(i+1,1))));
-        if (i == 0)
-            initialize_heads(f.first);
         if (_pairs.find(f) == _pairs.end())
             _pairs[f] = 1;
         else
@@ -45,26 +55,31 @@ void split_merge::get_pairs(std::string& tr)
 }
 void split_merge::get_chains(std::string& tr)
 {
-    for (int i = 0; i <= tr.length() - _order; ++i)
-    {
-        int k = 0;
-        std::vector<event_type_ptr> temp;
-        while (k < _order)
-            temp.push_back(event_type_ptr(new event_type(tr.substr(k++ + i, 1))));
-        event_sequence es(temp);
-        //std::cout << es << std::endl;
-        _chains.push_back(es);
-        if (_chains_to_num.find(es) == _chains_to_num.end())
-            _chains_to_num[es] = 1;
-        else
-            ++_chains_to_num[es];
-    }
+	if (tr.length() >= _order)
+	{
+		for (int i = 0; i <= tr.length() - _order; ++i)
+		{
+			int k = 0;
+			std::vector<event_type_ptr> temp;
+			while (k < _order)
+				temp.push_back(event_type_ptr(new event_type(tr.substr(k++ + i, 1))));
+			event_sequence es(temp);
+			//std::cout << es << std::endl;
+			_chains.push_back(es);
+			if (_chains_to_num.find(es) == _chains_to_num.end())
+				_chains_to_num[es] = 1;
+			else
+				++_chains_to_num[es];
+		}
+	}
 }
 void split_merge::initialize_heads(event_type_ptr a)
 {
     vertex v = _ts.get_init_state();
     vertex f(a);
-    _ts.add_edge(v, a);
+	edge r(v, f);
+	r._is_visited = true;
+    _ts.insert_edge(r);
 }
 void split_merge::build_init_ts()
 {
@@ -73,7 +88,7 @@ void split_merge::build_init_ts()
         _ts.add_edge(vertex(q.first.first), vertex(q.first.second));
         //std::cout << *q.first.first << "->" << *q.first.second << std::endl;
     }
-    dprint(_ts);
+	deb_print(_ts);
 }
 void split_merge::process_ts()
 {
@@ -81,42 +96,51 @@ void split_merge::process_ts()
     {
         std::string tr = _log[i];
         replay_trace(tr);
-    }
-}
-
-void split_merge::replay_trace(std::string& tr)
-{
-    vertex s = _ts.get_init_state();
-    vertex a = vertex(event_type_ptr(new event_type(tr.substr(0, 1))));
-    edge init = _ts.find_edge(s, a);
-
-    vertex current_vertex = init.second();
-	int i;
-    for (i = 0; i <= tr.length() - _order; i++)
-    {
-        event_sequence current_seq;
-        for (int j = 0; j < _order; ++j)
-            current_seq.push_back(event_type_ptr(new event_type(tr.substr(i + j, 1))));
-        std::vector<vertex_sequence> paths = _ts.dfs_stack(_order, current_vertex);
-		std::cout << "Current vertex: " << current_vertex << std::endl;
-		std::cout << "Current sequence: " << current_seq << std::endl;
-		std::cout << "All sequences: " << std::endl;
-		for (auto t : paths)
-			std::cout << t << std::endl;
-		//remove_invalid(paths);
-
-		//paths = _ts.dfs_stack(_order, current_vertex); //обновить пути после удаления!
-        auto pi = std::find(paths.begin(), paths.end(), current_seq);
-        if (pi == paths.end())
-        {
-            vertex_sequence v = recover_seq(current_seq, current_vertex);
-            current_vertex = v[1];
-        }
-        else
-            current_vertex = _ts.visit_seq(*pi);
-		remove_invalid(paths);
 		deb_print(_ts);
     }
+}
+void split_merge::replay_trace(std::string& tr)
+{
+	vertex s = _ts.get_init_state();
+	vertex a = vertex(event_type_ptr(new event_type(tr.substr(0, 1))));
+	edge r(s, a);
+	r._is_visited = true;
+	_ts.insert_edge(r);
+	vertex current_vertex = r.second();
+	int i;
+	for (i = 0; i <= tr.length() - _order; i++)
+	{
+		event_sequence current_seq;
+		for (int j = 0; j < _order; ++j)
+		{
+			if (tr.substr(i + j, 1) != "")
+				current_seq.push_back(event_type_ptr(new event_type(tr.substr(i + j, 1))));
+		}
+		if (current_seq.size() >= _order)
+		{
+			std::vector<vertex_sequence> paths = _ts.dfs_stack(_order, current_vertex);
+			std::cout << "Current vertex: " << current_vertex << std::endl;
+			std::cout << "Current sequence: " << current_seq << std::endl;
+			std::cout << "All sequences: " << std::endl;
+			for (auto t : paths)
+				std::cout << t << std::endl;
+			//remove_invalid(paths);
+			//paths = _ts.dfs_stack(_order, current_vertex); //обновить пути после удаления!
+			auto pi = std::find(paths.begin(), paths.end(), current_seq);
+			if (pi == paths.end())
+			{
+				vertex_sequence v = recover_seq(current_seq, current_vertex);
+				current_vertex = v[1];
+				_ts.visit_seq(v);
+				deb_print(_ts);
+			}
+			else
+				current_vertex = _ts.visit_seq(*pi);
+			remove_invalid(paths);
+		}
+		else
+			break;
+	}
 	for (int k = 0; k < _order - 1; k++)
 	{
 		std::vector<vertex_sequence> t = _ts.dfs_stack(_order, current_vertex);
@@ -126,10 +150,14 @@ void split_merge::replay_trace(std::string& tr)
 		for (edge& q : e)
 		{
 			if (q.second().type == event_type_ptr(new event_type(tr.substr(i + k, 1))))
+			{
 				current_vertex = q.second();
+				break;
+			}
 		}
+		if (k == _order - 2)
+			current_vertex.set_accepting();
 	}
-	dprint(_ts);
 }
 
 
@@ -166,6 +194,7 @@ void split_merge::remove_invalid(std::vector<vertex_sequence> paths)
 vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const vertex& cur_vertex)
 {
     vertex lc = cur_vertex;
+	vertex prev;
     vertex_sequence recovered;
     recovered.push_back(lc);
     for (auto it = cur_seq.begin(); it != cur_seq.end() && it + 1 != cur_seq.end(); it++)
@@ -177,6 +206,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
             if (f.first() == *it && f.second() == *(it + 1)) // ищем нужную вершину, которая следующая в последовательности
             {
                 recovered.push_back(f.second());
+				prev = lc;
                 lc = f.second();
                 found = true;
                 f.visit();
@@ -198,7 +228,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 				inserting = *r;
 			else
 			{
-				inserting = edge(vertex(*it), vertex(*(it + 1)), -1);
+				inserting = edge(lc, vertex(*(it + 1)), -1);
 				_trunk.push_back(inserting);
 			}
             std::set<vertex> ex = _ts.get_vertices(inserting.second().type);
@@ -210,7 +240,9 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                 if (se = !check_invalid && check_desired)
                 {
                     recovered.push_back(inserting.second());
+					prev = lc;
                     lc = inserting.second();
+					inserting.visit();
                     break;
                 }
 				_ts.remove_edge(inserting);
@@ -222,11 +254,17 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 				_ts.insert_edge(ins2);
                 std::tie(se2, t) = check_added(ins2, cur_seq);
 				if (!se2)
+				{
+					prev = lc;
 					lc = ins2.second();
+					ins2.visit();
+				}
                 else
                 {
 					_ts.remove_edge(ins2);
+					recovered.pop_back();
                     edge ins3(vertex(inserting.first(), inserting.first().id), vertex(inserting.second(), inserting.second().id));
+					recovered.push_back(ins3.first());
                     edge_vector es = _ts[lc];
                     for (auto& e : es)
                     {
@@ -236,9 +274,14 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                             _ts.remove_edge(e);
                         }
                     }
-                    _ts.add_edge(lc, ins3.first());
+					edge qw(prev, ins3.first());
+					qw.visit();
+                    _ts.insert_edge(qw);
+					ins3.visit();
                     _ts.insert_edge(ins3);
-                    lc = ins3.first();
+					prev = lc;
+                    lc = ins3.second();
+					deb_print(_ts);
                 }
                 recovered.push_back(lc);
             }
@@ -250,20 +293,37 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 std::tuple<bool, bool> split_merge::check_added(edge& e, const event_sequence& cur)
 {
     using namespace std;
-    vector<vertex_sequence> forw, revs, temp;
+    vector<vertex_sequence> forw, revs, temp, temp2;
     bool flag_inv = false, flag_des = false;
-
+	vertex init = _ts.get_init_state();
     temp = _ts.dfs_stack(_order, e.second(), true);
-    for (auto& t : temp)
-        if (*(t.begin() + 1) == e.first())
-        {
-            reverse(t.begin(), t.end());
-            revs.push_back(t);
-        }
+	temp2.resize(temp.size());
+	std::copy_if(temp.begin(), temp.end(), temp2.begin(), [init](vertex_sequence& vs) -> bool { 
+		return (find(vs.begin(), vs.end(), init) == vs.end());
+	});
+	for (auto& t : temp2)
+	{
+		if (t.get_size() == 0)
+			continue;
+		if (*(t.begin() + 1) == e.first())
+		{
+			reverse(t.begin(), t.end());
+			revs.push_back(t);
+		}
+	}
     temp = _ts.dfs_stack(_order, e.first(), false);
-    for (auto& t : temp)
-        if (*(t.begin() + 1) == e.second())
-            forw.push_back(t);
+	temp2.clear();
+	temp2.resize(temp.size());
+	std::copy_if(temp.begin(), temp.end(), temp2.begin(), [init](vertex_sequence& vs) -> bool {
+		return (find(vs.begin(), vs.end(), init) == vs.end());
+	});
+	for (auto& t : temp2)
+	{
+		if (t.get_size() == 0)
+			continue;
+		if (*(t.begin() + 1) == e.second())
+			forw.push_back(t);
+	}
 
 	for (int i = 0; i < _order - 2; i++)
 	{
@@ -293,8 +353,7 @@ std::tuple<bool, bool> split_merge::check_added(edge& e, const event_sequence& c
 				break;
 		}
 		if (flag_inv)
-			break;
-	}*/
+			break; */
 		for (auto & r : revs)
 		{
 			event_sequence seqs;
