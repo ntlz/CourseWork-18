@@ -67,6 +67,18 @@ void graph::remove_edge(edge e)
 {
     _edges.erase(e);
 }
+std::set<vertex> graph::get_vertices(event_type_ptr etp)
+{
+	std::set<vertex> k;
+	for (const edge& e : _edges)
+	{
+		if (e.first().get_type() == etp)
+			k.insert(e.first());
+		if (e.second().get_type() == etp)
+			k.insert(e.second());
+	}
+	return k;
+}
 
 const edge graph::find_edge(const vertex& a, const vertex& b)
 {
@@ -77,7 +89,7 @@ const edge graph::find_edge(const vertex& a, const vertex& b)
 	if (w == _edges.end())
 	{
 		vertex p = a;
-		edge t(p, vertex(p, p.id));
+		edge t(p, vertex(p, p.get_id()));
 		t.visit();
 		insert_edge(t);
 		return t;
@@ -118,14 +130,6 @@ vertex graph::visit_seq(vertex_sequence & s)
     _edges = edge_set(temp.begin(), temp.end());
     return s[1];
 }
-graph::graph()
-{
-}
-
-
-graph::~graph()
-{
-}
 
 std::ostream & operator<<(std::ostream & out, const graph & g)
 {
@@ -133,15 +137,15 @@ std::ostream & operator<<(std::ostream & out, const graph & g)
 	out << "node [shape = doublecircle];";
 	for (const auto& v : g._edges)
 	{
-		if (*(v.first().is_accepting))
+		if (*(v.first().is_acc()))
 			out << v.first() << " ";
-		if (*(v.second().is_accepting))
+		if (*(v.second().is_acc()))
 			out << v.second() << " ";
 	}
 	out << ";\nnode [shape = circle];\n";
     for (const auto& v : g._edges)
     {
-        out << v.first() << "->" << v.second() << "[label = \"" << *(v.second().type) << "\"]" << std::endl;
+        out << v.first() << "->" << v.second() << "[label = \"" << *(v.second().get_type()) << "\"]" << std::endl;
     }
 	out << "}";
 	return out;

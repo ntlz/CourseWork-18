@@ -1,11 +1,6 @@
 #include "vertex_sequence.h"
 
 
-vertex_sequence & vertex_sequence::set_predicate(std::function<bool(const vertex_vector&)> pred)
-{
-	this->_pred = pred;
-	return *this;
-}
 bool operator<(const vertex_sequence & a, const event_sequence & b)
 {
     return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
@@ -24,17 +19,10 @@ bool operator==(const event_sequence & a, const vertex_sequence & b)
 {
     return equal(a.begin(), a.end(), b.begin(), b.end(), [](const event_type_ptr& a, const vertex& b) -> bool 
     {
-        return a->type == b.type->type;
+		return a->get_type() == b.get_type()->get_type();
     });
 }
 bool operator==(const vertex_sequence & a, const event_sequence & b)
 {
     return b == a;
-}
-vertex_sequence::vertex_sequence()
-{
-}
-
-vertex_sequence::~vertex_sequence()
-{
 }

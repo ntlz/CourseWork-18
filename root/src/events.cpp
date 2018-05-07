@@ -7,7 +7,7 @@ bool operator<(const event_type_ptr & a, const event_type_ptr & b)
 
 std::ostream& operator<<(std::ostream& out, const event_type& t)
 {
-	out << t.type;
+	out << t.get_type();
 	return out;
 }
 std::ostream& operator<<(std::ostream& out, const event_sequence& t)
@@ -19,5 +19,5 @@ std::ostream& operator<<(std::ostream& out, const event_sequence& t)
 
 bool operator==(const event_type_ptr & a, const event_type_ptr & b)
 {
-    return a->type == b->type;
+    return a->get_type() == b->get_type();
 }

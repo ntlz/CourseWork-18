@@ -1,34 +1,36 @@
 #include "split_merge.h"
 
-#include <fstream>
 #include <iostream>
-#include <sstream>
-#include <stdlib.h>
+#include <fstream>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <windows.h>
+#include <memory>
 
 using namespace std;
-//#define DEBUG
 
-vector<string> parse_csv(ifstream& in)
+void save_img() 
 {
-	std::vector<std::string> result;
-	std::string line;
+	string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
+	string pathToFile = " \"output.dot\" ";
+	/*char buf[256];
+	GetCurrentDirectoryA(256, buf);
+	pathToFile = " \"" + string(buf) + '\\' + pathToFile;*/
+	string args = " -Tpng -O ";
+	string str = "\"" + pathToDot + "\" -Tpng \"" + pathToFile + "\" -O";
 
-	std::stringstream lineStream(line);
-	std::string cell;
+	STARTUPINFOA info;
+	PROCESS_INFORMATION pi;
 
-	while (std::getline(lineStream, cell, ','))
-	{
-		result.push_back(cell);
-	}
-	// This checks for a trailing comma with no data after it.
-	if (!lineStream && cell.empty())
-	{
-		// If there was a trailing comma then add an empty element.
-		result.push_back("");
-	}
-	return result;
+	memset(&info, 0, sizeof(info));
+	memset(&pi, 0, sizeof(pi));
+
+	info.wShowWindow = false;
+	str = pathToFile + args;
+	if (!CreateProcessA((LPSTR)pathToDot.c_str(), (LPSTR)str.c_str(), nullptr, nullptr, false, 0, nullptr, nullptr, &info, &pi))
+		cerr << GetLastError() << endl;
 }
-
 int main(int argc, char** argv)
 {
 	int o;
@@ -58,22 +60,15 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "input3.txt";
+	file = "input2.txt";
 	//file = "input.csv";
 	ifstream fin(file);
-	//log = parse_csv(fin);
 	while (fin >> trace)
 		log.push_back(trace);
 	fin.close();
 
 	split_merge sm(log, o);
 	sm.build();
-#ifdef DEBUG    
-    for (auto& r : markov.all_event_seq)
-    {
-        cout << r << "->" << r.count << ", " << r.probability << endl;
-    }
-#endif // DEBUG
-
+	save_img();
 	system("PAUSE");
 }

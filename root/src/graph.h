@@ -67,6 +67,9 @@ public:
     typedef std::set<edge> edge_set;
     typedef std::vector<edge> edge_vector;
 
+	graph() { }
+	~graph() { }
+
 	edge_vector operator[](vertex v) const
 	{
         edge_set res;
@@ -82,35 +85,12 @@ public:
         edge_set res;
         for (const auto& t : _edges)
         {
-            if (v == t.first().type || v == t.second().type)
+            if (v == t.first().get_type() || v == t.second().get_type())
                 res.insert(t);
         }
         return edge_vector(res.begin(), res.end());
     }
 
-    void add_edge(vertex a, vertex b)
-    {
-        edge k(a, b);
-        _edges.insert(k);
-    }
-protected:	
-	//std::map<vertex, vertex_set> incid_table;
-    edge_set _edges;
-
-public:
-
-    std::vector<vertex_sequence> dfs_stack(int max_length, vertex start, bool reverse = false);
-	bool check_exists(vertex & a);
-    void insert_edge(edge e);
-    void remove_edge(edge e);
-    void copy_out_edges(vertex& a, vertex& b);
-    vertex visit_seq(vertex_sequence& s);
-    const edge find_edge(const vertex & a, const vertex & b);
-    //edge& find_edge(const vertex & a, const vertex & b);
-    vertex get_init_state() { return vertex(); }
-
-	graph();
-	~graph();
 	typename edge_set::iterator begin()
 	{
 		return _edges.begin();
@@ -126,19 +106,31 @@ public:
 	typename edge_set::const_iterator end() const
 	{
 		return _edges.end();
-	}
-    std::set<vertex> get_vertices(event_type_ptr etp)
+	}	
+
+	/*Methods*/
+    void add_edge(vertex a, vertex b)
     {
-        std::set<vertex> k;
-        for (const edge& e : _edges)
-        {
-            if (e.first().type == etp)
-                k.insert(e.first());
-            if (e.second().type == etp)
-                k.insert(e.second());
-        }
-        return k;
+        edge k(a, b);
+        _edges.insert(k);
     }
+	std::vector<vertex_sequence> dfs_stack(int max_length, vertex start, bool reverse = false);
+	bool check_exists(vertex & a);
+    void insert_edge(edge e);
+    void remove_edge(edge e);
+    void copy_out_edges(vertex& a, vertex& b);
+    vertex visit_seq(vertex_sequence& s);
+    const edge find_edge(const vertex & a, const vertex & b);
+    //edge& find_edge(const vertex & a, const vertex & b);
+    vertex get_init_state() { return vertex(); }
+	std::set<vertex> get_vertices(event_type_ptr etp);
+
+
 	friend std::ostream& operator<<(std::ostream& out, const graph& g);
+
+protected:
+	/*Fields*/
+	//std::map<vertex, vertex_set> incid_table;
+	edge_set _edges;
 };
 

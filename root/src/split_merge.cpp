@@ -16,14 +16,25 @@ void deb_print(T&& t, std::string file = "debug_output.txt")
 	out << t << std::endl;
 	out.close();
 }
+template <class T>
+void out(T&& t, std::string file = "output.dot")
+{
+	std::ofstream out(file);
+	out << t << std::endl;
+	out.close();
+}
 void split_merge::build()
 {
     for (std::string t : _log)
         process_trace(t);
     build_init_ts();
-    process_ts();
-	refine();
+	if (_order > 2)
+	{
+		process_ts();
+		refine();
+	}
 	dprint(_ts);
+	out(_ts);
 }
 
 void split_merge::refine()
@@ -72,14 +83,6 @@ void split_merge::get_chains(std::string& tr)
 				++_chains_to_num[es];
 		}
 	}
-}
-void split_merge::initialize_heads(event_type_ptr a)
-{
-    vertex v = _ts.get_init_state();
-    vertex f(a);
-	edge r(v, f);
-	r._is_visited = true;
-    _ts.insert_edge(r);
 }
 void split_merge::build_init_ts()
 {
@@ -141,26 +144,29 @@ void split_merge::replay_trace(std::string& tr)
 		else
 			break;
 	}
+	check_tail(current_vertex, tr, i);
+}
+
+void split_merge::check_tail(vertex& cv, std::string tr, int i)
+{
 	for (int k = 0; k < _order - 1; k++)
 	{
-		std::vector<vertex_sequence> t = _ts.dfs_stack(_order, current_vertex);
+		std::vector<vertex_sequence> t = _ts.dfs_stack(_order, cv);
 		remove_invalid(t);
 
-		edge_vector e = _ts[current_vertex];
+		edge_vector e = _ts[cv];
 		for (edge& q : e)
 		{
-			if (q.second().type == event_type_ptr(new event_type(tr.substr(i + k, 1))))
+			if (q.second().get_type() == event_type_ptr(new event_type(tr.substr(i + k, 1))))
 			{
-				current_vertex = q.second();
+				cv = q.second();
 				break;
 			}
 		}
 		if (k == _order - 2)
-			current_vertex.set_accepting();
+			cv.set_accepting();
 	}
 }
-
-
 void split_merge::remove_invalid(std::vector<vertex_sequence> paths)
 {
 	std::vector<vertex_sequence> invalid(paths.size());
@@ -231,7 +237,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 				inserting = edge(lc, vertex(*(it + 1)), -1);
 				_trunk.push_back(inserting);
 			}
-            std::set<vertex> ex = _ts.get_vertices(inserting.second().type);
+            std::set<vertex> ex = _ts.get_vertices(inserting.second().get_type());
             for (vertex r : ex)
             {
                 inserting = edge(lc, r);
@@ -249,7 +255,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
             }
             if (!se)
             {
-                edge ins2(lc, vertex(inserting.second(), inserting.second().id));
+                edge ins2(lc, vertex(inserting.second(), inserting.second().get_id()));
                 bool t;
 				_ts.insert_edge(ins2);
                 std::tie(se2, t) = check_added(ins2, cur_seq);
@@ -263,12 +269,12 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                 {
 					_ts.remove_edge(ins2);
 					recovered.pop_back();
-                    edge ins3(vertex(inserting.first(), inserting.first().id), vertex(inserting.second(), inserting.second().id));
+                    edge ins3(vertex(inserting.first(), inserting.first().get_id()), vertex(inserting.second(), inserting.second().get_id()));
 					recovered.push_back(ins3.first());
                     edge_vector es = _ts[lc];
                     for (auto& e : es)
                     {
-                        if (e.second().type == inserting.first().type)
+                        if (e.second().get_type() == inserting.first().get_type())
                         {
                             _ts.copy_out_edges(e.second(), ins3.first());
                             _ts.remove_edge(e);
@@ -327,38 +333,11 @@ std::tuple<bool, bool> split_merge::check_added(edge& e, const event_sequence& c
 
 	for (int i = 0; i < _order - 2; i++)
 	{
-		/*for (auto & r : revs)
-		{
-			for (auto& f : forw)
-			{
-				event_sequence seqs;
-				vector<vertex> aaa;
-				aaa.resize(_order);
-
-				//copy(b.begin() + 2, b.end() - b.size() + 2 + i, it);
-				auto it = copy(r.begin() + i, r.end(), aaa.begin());
-				copy(f.begin() + 2, f.end() - f.get_size() + 2 + i, it);
-				for (auto& u : aaa)
-					seqs.push_back(u.type);
-				std:cout << seqs << std::endl;
-				if (_chains_to_num.find(seqs) == _chains_to_num.end())
-				{
-					flag_inv = true; // мы нашли невалидную последовательность
-					break;
-				}
-				if (seqs == cur)
-					flag_des = true; //нашли нужную
-			}
-			if (flag_inv)
-				break;
-		}
-		if (flag_inv)
-			break; */
 		for (auto & r : revs)
 		{
 			event_sequence seqs;
 			for (auto& k : r)
-				seqs.push_back(k.type);
+				seqs.push_back(k.get_type());
 			if (_chains_to_num.find(seqs) == _chains_to_num.end())
 			{
 				flag_inv = true; // мы нашли невалидную последовательность
@@ -371,7 +350,7 @@ std::tuple<bool, bool> split_merge::check_added(edge& e, const event_sequence& c
 		{
 			event_sequence seqs;
 			for (auto& k : f)
-				seqs.push_back(k.type);
+				seqs.push_back(k.get_type());
 			if (_chains_to_num.find(seqs) == _chains_to_num.end())
 			{
 				flag_inv = true; // мы нашли невалидную последовательность
