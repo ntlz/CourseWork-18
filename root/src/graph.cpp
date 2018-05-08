@@ -65,7 +65,8 @@ void graph::insert_edge(edge e)
 
 void graph::remove_edge(edge e)
 {
-    _edges.erase(e);
+    //if (!e.get_is_visited())
+		_edges.erase(e);
 }
 std::set<vertex> graph::get_vertices(event_type_ptr etp)
 {
@@ -102,6 +103,7 @@ const edge graph::find_edge(const vertex& a, const vertex& b)
 void graph::copy_out_edges(vertex & a, vertex & b)
 {
     edge_vector q = (*this)[a];
+	size_t co = 0;
     for (auto n : q)
     {
 		if (n.first() == a && n.get_is_visited())
@@ -110,7 +112,15 @@ void graph::copy_out_edges(vertex & a, vertex & b)
 			t.visit();
 			insert_edge(t);
 		}
+		if (n.second() == a)
+			++co;
     }
+	if (co == 1)
+	{
+		for (auto n : q)
+			if (n.first() == a)
+				remove_edge(n);
+	}
 }
 vertex graph::visit_seq(vertex_sequence & s)
 {
@@ -125,7 +135,10 @@ vertex graph::visit_seq(vertex_sequence & s)
 			std::cout << *it << std::endl;
             return e.first() == *it && e.second() == *(it + 1);
         });*/
-		w->visit();
+		if (w != temp.end())
+			w->visit();
+		else
+			std::cout << "Я дурак";
     }
     _edges = edge_set(temp.begin(), temp.end());
     return s[1];

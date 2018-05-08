@@ -12,7 +12,7 @@ using namespace std;
 
 void save_img() 
 {
-	string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
+	string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
 	string pathToFile = " \"output.dot\" ";
 	/*char buf[256];
 	GetCurrentDirectoryA(256, buf);
@@ -29,7 +29,7 @@ void save_img()
 	info.wShowWindow = false;
 	str = pathToFile + args;
 	if (!CreateProcessA((LPSTR)pathToDot.c_str(), (LPSTR)str.c_str(), nullptr, nullptr, false, 0, nullptr, nullptr, &info, &pi))
-		cerr << GetLastError() << endl;
+		cout << GetLastError() << endl;
 }
 int main(int argc, char** argv)
 {
@@ -59,8 +59,8 @@ int main(int argc, char** argv)
 		split_merge sm(log, o);
 		sm.build();
 	}*/
-	o = 3;
-	file = "input.txt";
+	o = 5;
+	file = "input3.txt";
 	//file = "input.csv";
 	ifstream fin(file);
 	while (fin >> trace)

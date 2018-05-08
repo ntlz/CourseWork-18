@@ -134,7 +134,7 @@ void split_merge::replay_trace(std::string& tr)
 			{
 				vertex_sequence v = recover_seq(current_seq, current_vertex);
 				current_vertex = v[1];
-				//_ts.visit_seq(v);
+				_ts.visit_seq(v);
 				deb_print(_ts);
 			}
 			else
@@ -209,7 +209,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
         edge_vector es = _ts[lc]; //все инцидентные ребра
         for (edge& f : es)
         {
-            if (f.first() == *it && f.second() == *(it + 1)) // ищем нужную вершину, которая следующая в последовательности
+            if (f.first() == lc && f.second() == *(it + 1)) // ищем нужную вершину, которая следующая в последовательности
             {
                 recovered.push_back(f.second());
 				prev = lc;
@@ -271,13 +271,14 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 					recovered.pop_back();
                     edge ins3(vertex(inserting.first(), inserting.first().get_id()), vertex(inserting.second(), inserting.second().get_id()));
 					recovered.push_back(ins3.first());
-                    edge_vector es = _ts[lc];
+                    edge_vector es = _ts[prev];
                     for (auto& e : es)
                     {
                         if (e.second().get_type() == inserting.first().get_type())
                         {
                             _ts.copy_out_edges(e.second(), ins3.first());
-                            _ts.remove_edge(e);
+							if (e.first() != _ts.get_init_state())
+								_ts.remove_edge(e);
                         }
                     }
 					edge qw(prev, ins3.first());
