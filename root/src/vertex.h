@@ -3,7 +3,7 @@
 #include <set>
 #include <string>
 #include <memory>
-
+#include <iostream>
 #include <cmath>
 #include "events.h"
 
@@ -21,7 +21,7 @@ public:
 public:
 	vertex() : type(new event_type("")) { id = -1; };
 	vertex(event_type_ptr et) { type = et; id = 0; }
-	vertex(vertex& v, short id) { type = v.type, this->id = id + std::abs(rand()) % 200;  is_old = false; } // используется только для новых вершин!
+	vertex(vertex& v, short id) { type = v.type, this->id = id + std::abs(rand()) % 200; } // используется только для новых вершин!
 	~vertex();
 	void set_accepting() { *is_accepting = true; }
 	event_type_ptr get_type() const
@@ -48,7 +48,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const vertex& t);
 	/*Fields*/
 protected:
-	bool is_old = true;
+	//bool is_old = true;
 	short id;
 	event_type_ptr type;
 	shared_bool_ptr is_accepting = std::make_shared<bool>(false);

@@ -54,9 +54,13 @@ public:
         return _trans.first == e._trans.first && _trans.second == e._trans.second;
     }
     void visit() { this->_is_visited = true; }
+    int get_num_visits() const { return num_visits; }
+    bool get_is_visited() const { return _is_visited; }
+
+protected:
     std::pair<vertex, vertex> _trans;
     bool _is_visited = false;
-    short num_visits = 0;
+    int num_visits = 0;
 };
 
 class graph

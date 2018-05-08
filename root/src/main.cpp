@@ -12,7 +12,7 @@ using namespace std;
 
 void save_img() 
 {
-	string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
+	string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
 	string pathToFile = " \"output.dot\" ";
 	/*char buf[256];
 	GetCurrentDirectoryA(256, buf);
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "input2.txt";
+	file = "input.txt";
 	//file = "input.csv";
 	ifstream fin(file);
 	while (fin >> trace)

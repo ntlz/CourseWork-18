@@ -42,7 +42,7 @@ void split_merge::refine()
 	std::set<edge> to_remove;
 	for (const edge& t : _ts)
 	{
-		if (!t._is_visited)
+		if (!t.get_is_visited())
 			to_remove.insert(t);
 	}
 	for (auto& p : to_remove)
@@ -107,7 +107,7 @@ void split_merge::replay_trace(std::string& tr)
 	vertex s = _ts.get_init_state();
 	vertex a = vertex(event_type_ptr(new event_type(tr.substr(0, 1))));
 	edge r(s, a);
-	r._is_visited = true;
+    r.visit();
 	_ts.insert_edge(r);
 	vertex current_vertex = r.second();
 	int i;
@@ -116,7 +116,7 @@ void split_merge::replay_trace(std::string& tr)
 		event_sequence current_seq;
 		for (int j = 0; j < _order; ++j)
 		{
-			if (tr.substr(i + j, 1) != "")
+			if (i + j < tr.length() && tr.substr(i + j, 1) != "")
 				current_seq.push_back(event_type_ptr(new event_type(tr.substr(i + j, 1))));
 		}
 		if (current_seq.size() >= _order)
@@ -125,8 +125,8 @@ void split_merge::replay_trace(std::string& tr)
 			std::cout << "Current vertex: " << current_vertex << std::endl;
 			std::cout << "Current sequence: " << current_seq << std::endl;
 			std::cout << "All sequences: " << std::endl;
-			for (auto t : paths)
-				std::cout << t << std::endl;
+			//for (auto t : paths)
+			//	std::cout << t << std::endl;
 			//remove_invalid(paths);
 			//paths = _ts.dfs_stack(_order, current_vertex); //обновить пути после удаления!
 			auto pi = std::find(paths.begin(), paths.end(), current_seq);
@@ -134,7 +134,7 @@ void split_merge::replay_trace(std::string& tr)
 			{
 				vertex_sequence v = recover_seq(current_seq, current_vertex);
 				current_vertex = v[1];
-				_ts.visit_seq(v);
+				//_ts.visit_seq(v);
 				deb_print(_ts);
 			}
 			else
@@ -184,7 +184,7 @@ void split_merge::remove_invalid(std::vector<vertex_sequence> paths)
 		for (auto it = p.begin(); it != p.end() && it + 1 != p.end(); it++)
 		{
 			edge n = _ts.find_edge(*it, *(it + 1));
-			if (!n._is_visited)
+			if (!n.get_is_visited())
 			{
 				to_remove.insert(n);
 				break;
@@ -228,7 +228,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 
 			edge inserting; 
 			edge_vector::iterator r = std::find_if(_trunk.begin(), _trunk.end(), [&it](const edge& existing) -> bool {
-                return existing.first() == (*it) && existing.second() == *(it + 1) && existing.num_visits != -1;
+                return existing.first() == (*it) && existing.second() == *(it + 1) && existing.get_num_visits() != -1;
             });
 			if (r != _trunk.end())
 				inserting = *r;

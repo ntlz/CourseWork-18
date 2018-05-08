@@ -104,7 +104,7 @@ void graph::copy_out_edges(vertex & a, vertex & b)
     edge_vector q = (*this)[a];
     for (auto n : q)
     {
-		if (n.first() == a && n._is_visited)
+		if (n.first() == a && n.get_is_visited())
 		{
 			edge t(b, n.second());
 			t.visit();
