@@ -10,10 +10,11 @@
 
 using namespace std;
 
-void save_img() 
+void save_img(string of)
 {
-	string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
-	string pathToFile = " \"output.dot\" ";
+	//string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
+    string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
+    string pathToFile = " \"" + of + "_out.dot\" ";
 	/*char buf[256];
 	GetCurrentDirectoryA(256, buf);
 	pathToFile = " \"" + string(buf) + '\\' + pathToFile;*/
@@ -59,8 +60,10 @@ int main(int argc, char** argv)
 		split_merge sm(log, o);
 		sm.build();
 	}*/
-	o = 5;
-	file = "input3.txt";
+	o = 3;
+	file = "input.txt";
+    size_t ind = file.find_last_of(".");
+    string out_file = file.substr(0, ind);
 	//file = "input.csv";
 	ifstream fin(file);
 	while (fin >> trace)
@@ -68,7 +71,7 @@ int main(int argc, char** argv)
 	fin.close();
 
 	split_merge sm(log, o);
-	sm.build();
-	save_img();
+	sm.build(out_file);
+	save_img(out_file);
 	system("PAUSE");
 }

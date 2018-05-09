@@ -23,7 +23,7 @@ void out(T&& t, std::string file = "output.dot")
 	out << t << std::endl;
 	out.close();
 }
-void split_merge::build()
+void split_merge::build(std::string of)
 {
     for (std::string t : _log)
         process_trace(t);
@@ -34,7 +34,7 @@ void split_merge::build()
 		refine();
 	}
 	dprint(_ts);
-	out(_ts);
+    out(_ts, of + "_out.dot");
 }
 
 void split_merge::refine()
@@ -210,7 +210,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
         for (edge& f : es)
         {
             if (f.first() == lc && f.second() == *(it + 1)) // ищем нужную вершину, которая следующая в последовательности
-            {
+            { // сравниваем первую вершину с lc,  а не с *it!
                 recovered.push_back(f.second());
 				prev = lc;
                 lc = f.second();
@@ -271,7 +271,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
 					recovered.pop_back();
                     edge ins3(vertex(inserting.first(), inserting.first().get_id()), vertex(inserting.second(), inserting.second().get_id()));
 					recovered.push_back(ins3.first());
-                    edge_vector es = _ts[prev];
+                    edge_vector es = _ts[prev]; // от предыдущей!!!
                     for (auto& e : es)
                     {
                         if (e.second().get_type() == inserting.first().get_type())
