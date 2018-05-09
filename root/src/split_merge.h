@@ -16,7 +16,8 @@ public:
         _log(log)
         , _order(k)
     { }
-    void build(std::string of);
+	void to_json(std::string of);
+	void build(std::string of);
 protected:
     void process_trace(std::string& trace);
     void get_pairs(std::string& tr);

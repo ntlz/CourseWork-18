@@ -23,6 +23,36 @@ void out(T&& t, std::string file = "output.dot")
 	out << t << std::endl;
 	out.close();
 }
+void split_merge::to_json(std::string of)
+{
+	std::set<vertex> vert;
+	for (auto& e : _ts)
+	{
+		vert.insert(e.first());
+		vert.insert(e.second());
+	}
+	std::ofstream out(of);
+	out << "{" << std::endl;
+	out << "\"states\":[" << std::endl;
+	for (auto& v : vert)
+		out << v << "," << std::endl;
+	out << "]," << std::endl;
+	out << "\"transitions\":[" << std::endl;
+	for (auto& e : _ts)
+	{
+		out << "{\n";
+		out << "\"from\":" << e.first() << ",\n\"to\":" << e.second() << ",\n\"track\":\"" << *e.second().get_type() << "\"\n";
+		out << "},\n";
+	}
+	out << "],\"meta\":{\n\"isAccepting\":[\n";
+	for (auto v : vert)
+	{
+		if (*(v.is_acc()))
+			out << v << ",\n";
+	}
+	out << "],\"isInitial\":[\n" << _ts.get_init_state() << "\",\n],}\n}";
+	out.close();
+}
 void split_merge::build(std::string of)
 {
     for (std::string t : _log)
@@ -35,6 +65,7 @@ void split_merge::build(std::string of)
 	}
 	dprint(_ts);
     out(_ts, of + "_out.dot");
+	to_json(of+"_out.json");
 }
 
 void split_merge::refine()
