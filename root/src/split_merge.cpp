@@ -67,8 +67,8 @@ void split_merge::to_json(std::string of)
 }
 void split_merge::build(std::string of)
 {
-    for (std::vector<event_type_ptr> t : _log)
-        process_trace(t);
+	for (std::vector<event_type_ptr> t : _log)
+		process_trace(t);
     build_init_ts();
 	if (_order > 2)
 	{
@@ -100,7 +100,7 @@ void split_merge::refine()
             if (q.first() == v)
                 c++;
         }
-        if (c == 0)
+        if (c == 0 && !v.is_acc())
         {
             for (edge q : ev)
                 to_remove.insert(q);
@@ -157,9 +157,12 @@ void split_merge::build_init_ts()
 }
 void split_merge::process_ts()
 {
+	int u = 0;
     for (int i = 0; i < _log.size(); i++)
     {
         std::vector<event_type_ptr> tr = _log[i];
+		if (u++ == 191)
+			std::cout << "Sup";
         if (tr.size() >= _order)
             replay_trace(tr);
 		deb_print(_ts);
@@ -187,7 +190,7 @@ void split_merge::replay_trace(std::vector<event_type_ptr>& tr)
 			std::vector<vertex_sequence> paths = _ts.dfs_stack(_order, current_vertex);
 			std::cout << "Current vertex: " << current_vertex << std::endl;
 			std::cout << "Current sequence: " << current_seq << std::endl;
-			std::cout << "All sequences: " << std::endl;
+			//std::cout << "All sequences: " << std::endl;
 			//for (auto t : paths)
 			//	std::cout << t << std::endl;
 			//remove_invalid(paths);
@@ -240,10 +243,10 @@ void split_merge::remove_invalid(std::vector<vertex_sequence> paths)
 		return (it == a.end());
 	});
 	std::set<edge> to_remove;
-	std::cout << "Invalid: " << std::endl;
+	//std::cout << "Invalid: " << std::endl;
 	for (auto& p : invalid)
 	{
-		std::cout << p << std::endl;
+		//std::cout << p << std::endl;
 		for (auto it = p.begin(); it != p.end() && it + 1 != p.end(); it++)
 		{
 			edge n = _ts.find_edge(*it, *(it + 1));
@@ -279,6 +282,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                 lc = f.second();
                 found = true;
                 f.visit();
+				break; //очень важный брейк
             }
         }
         if (!found)

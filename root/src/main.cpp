@@ -12,8 +12,8 @@ using namespace std;
 
 void save_img(string of)
 {
-	//string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
-    string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
+	string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
+    //string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
     string pathToFile = " \"" + of + "_out.dot\" ";
 	/*char buf[256];
 	GetCurrentDirectoryA(256, buf);
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "all-shorts.txt";
+	file = "..//..//logs//good_ru.txt";
     //file = "input4.txt";
     size_t ind = file.find_last_of(".");
     string out_file = file.substr(0, ind);

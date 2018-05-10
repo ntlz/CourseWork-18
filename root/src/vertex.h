@@ -30,6 +30,7 @@ public:
 	}
 	short get_id() { return id; }
 	shared_bool_ptr is_acc() { return is_accepting; }
+	shared_bool_ptr is_acc() const { return is_accepting; }
 	bool operator==(const vertex& v) const
 	{
 		return (this->id == v.id && this->type == v.type);
