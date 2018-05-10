@@ -60,8 +60,8 @@ int main(int argc, char** argv)
 		split_merge sm(log, o);
 		sm.build();
 	}*/
-	o = 3;
-	file = "..//..//logs//log05.txt";
+	o = 4;
+	file = "..//..//logs//input2.txt";
     //file = "input4.txt";
     size_t ind = file.find_last_of(".");
     string out_file = file.substr(0, ind);

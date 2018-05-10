@@ -23,7 +23,8 @@ protected:
     void process_ts();
     void replay_trace(std::vector<event_type_ptr> & tr);
     std::tuple<bool, bool> check_added(edge & e, const event_sequence& cur);
-    void check_tail(vertex & cv, std::vector<event_type_ptr> ts, int i);
+	void iterate_seq(event_sequence& current_seq, vertex& current_vertex);
+	void check_tail(vertex & cv, std::vector<event_type_ptr> ts, int i);
     void remove_invalid(std::vector<vertex_sequence> paths);
     vertex_sequence recover_seq(const event_sequence & cur_seq, const vertex& cur_vertex);
     void build_init_ts();

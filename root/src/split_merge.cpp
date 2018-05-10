@@ -163,8 +163,7 @@ void split_merge::process_ts()
         std::vector<event_type_ptr> tr = _log[i];
 		if (u++ == 191)
 			std::cout << "Sup";
-        if (tr.size() >= _order)
-            replay_trace(tr);
+        replay_trace(tr);
 		deb_print(_ts);
     }
 }
@@ -186,33 +185,40 @@ void split_merge::replay_trace(std::vector<event_type_ptr>& tr)
 				current_seq.push_back(tr[i+j]);
 		}
 		if (current_seq.size() >= _order)
+			iterate_seq(current_seq, current_vertex);
+		else
 		{
-			std::vector<vertex_sequence> paths = _ts.dfs_stack(_order, current_vertex);
-			std::cout << "Current vertex: " << current_vertex << std::endl;
-			std::cout << "Current sequence: " << current_seq << std::endl;
-			//std::cout << "All sequences: " << std::endl;
-			//for (auto t : paths)
-			//	std::cout << t << std::endl;
-			//remove_invalid(paths);
-			//paths = _ts.dfs_stack(_order, current_vertex); //обновить пути после удаления!
-			auto pi = std::find(paths.begin(), paths.end(), current_seq);
-			if (pi == paths.end())
-			{
-				vertex_sequence v = recover_seq(current_seq, current_vertex);
-				current_vertex = v[1];
-				_ts.visit_seq(v);
-				deb_print(_ts);
-			}
-			else
-				current_vertex = _ts.visit_seq(*pi);
-			remove_invalid(paths);
+			int temp = _order;
+			_order = current_seq.size();
+			iterate_seq(current_seq, current_vertex);
+			_order = temp;
 		}
-        else
-            break;
 	}
     check_tail(current_vertex, tr, i);
 }
 
+void split_merge::iterate_seq(event_sequence& current_seq, vertex& current_vertex)
+{
+	std::vector<vertex_sequence> paths = _ts.dfs_stack(_order, current_vertex);
+	std::cout << "Current vertex: " << current_vertex << std::endl;
+	std::cout << "Current sequence: " << current_seq << std::endl;
+	//std::cout << "All sequences: " << std::endl;
+	//for (auto t : paths)
+	//	std::cout << t << std::endl;
+	//remove_invalid(paths);
+	//paths = _ts.dfs_stack(_order, current_vertex); //обновить пути после удаления!
+	auto pi = std::find(paths.begin(), paths.end(), current_seq);
+	if (pi == paths.end())
+	{
+		vertex_sequence v = recover_seq(current_seq, current_vertex);
+		current_vertex = v[1];
+		_ts.visit_seq(v);
+		deb_print(_ts);
+	}
+	else
+		current_vertex = _ts.visit_seq(*pi);
+	remove_invalid(paths);
+}
 void split_merge::check_tail(vertex& cv, std::vector<event_type_ptr> tr, int i)
 {
 	for (int k = 0; k < _order - 2; k++)
