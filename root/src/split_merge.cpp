@@ -23,6 +23,18 @@ void out(T&& t, std::string file = "output.dot")
 	out << t << std::endl;
 	out.close();
 }
+
+split_merge::split_merge(std::vector<std::vector<std::string>> log, int k)
+{
+    for (std::vector<std::string> a : log)
+    {
+        std::vector<event_type_ptr> trace;
+        for (std::string b : a)
+            trace.push_back(event_type_ptr(new event_type(b)));
+        _log.push_back(trace);
+    }
+    _order = k;
+}
 void split_merge::to_json(std::string of)
 {
 	std::set<vertex> vert;
@@ -55,7 +67,7 @@ void split_merge::to_json(std::string of)
 }
 void split_merge::build(std::string of)
 {
-    for (std::string t : _log)
+    for (std::vector<event_type_ptr> t : _log)
         process_trace(t);
     build_init_ts();
 	if (_order > 2)
@@ -63,7 +75,7 @@ void split_merge::build(std::string of)
 		process_ts();
 		refine();
 	}
-	dprint(_ts);
+	//dprint(_ts);
     out(_ts, of + "_out.dot");
 	to_json(of+"_out.json");
 }
@@ -71,40 +83,59 @@ void split_merge::build(std::string of)
 void split_merge::refine()
 {
 	std::set<edge> to_remove;
+    std::set<vertex> vert;
 	for (const edge& t : _ts)
 	{
+        vert.insert(t.first());
+        vert.insert(t.second());
 		if (!t.get_is_visited())
 			to_remove.insert(t);
 	}
+    for (const vertex& v : vert)
+    {
+        edge_vector ev = _ts[v];
+        int c = 0;
+        for (edge q : ev)
+        {
+            if (q.first() == v)
+                c++;
+        }
+        if (c == 0)
+        {
+            for (edge q : ev)
+                to_remove.insert(q);
+        }
+
+    }
 	for (auto& p : to_remove)
 		_ts.remove_edge(p);
 }
-void split_merge::process_trace(std::string& tr)
+void split_merge::process_trace(std::vector<event_type_ptr>& tr)
 {
     get_pairs(tr);
     get_chains(tr);
 }
-void split_merge::get_pairs(std::string& tr)
+void split_merge::get_pairs(std::vector<event_type_ptr>& tr)
 {
-    for (int i = 0; i < tr.length() - 1; ++i)
+    for (int i = 0; i < tr.size() - 1; ++i)
     {
-        std::pair<event_type_ptr, event_type_ptr> f = std::pair<event_type_ptr, event_type_ptr>(event_type_ptr(new event_type(tr.substr(i,1))), event_type_ptr(new event_type(tr.substr(i+1,1))));
+        std::pair<event_type_ptr, event_type_ptr> f = std::pair<event_type_ptr, event_type_ptr>(tr[i], tr[i + 1]);
         if (_pairs.find(f) == _pairs.end())
             _pairs[f] = 1;
         else
             ++_pairs[f];
     }
 }
-void split_merge::get_chains(std::string& tr)
+void split_merge::get_chains(std::vector<event_type_ptr>& tr)
 {
-	if (tr.length() >= _order)
+	if (tr.size() >= _order)
 	{
-		for (int i = 0; i <= tr.length() - _order; ++i)
+		for (int i = 0; i <= tr.size() - _order; ++i)
 		{
 			int k = 0;
 			std::vector<event_type_ptr> temp;
 			while (k < _order)
-				temp.push_back(event_type_ptr(new event_type(tr.substr(k++ + i, 1))));
+                temp.push_back(tr[k++ + i]);
 			event_sequence es(temp);
 			//std::cout << es << std::endl;
 			_chains.push_back(es);
@@ -128,27 +159,28 @@ void split_merge::process_ts()
 {
     for (int i = 0; i < _log.size(); i++)
     {
-        std::string tr = _log[i];
-        replay_trace(tr);
+        std::vector<event_type_ptr> tr = _log[i];
+        if (tr.size() >= _order)
+            replay_trace(tr);
 		deb_print(_ts);
     }
 }
-void split_merge::replay_trace(std::string& tr)
+void split_merge::replay_trace(std::vector<event_type_ptr>& tr)
 {
 	vertex s = _ts.get_init_state();
-	vertex a = vertex(event_type_ptr(new event_type(tr.substr(0, 1))));
+	vertex a = vertex(tr[0]);
 	edge r(s, a);
     r.visit();
 	_ts.insert_edge(r);
 	vertex current_vertex = r.second();
 	int i;
-	for (i = 0; i <= tr.length() - _order; i++)
+	for (i = 0; i <= tr.size() - _order; i++)
 	{
 		event_sequence current_seq;
 		for (int j = 0; j < _order; ++j)
 		{
-			if (i + j < tr.length() && tr.substr(i + j, 1) != "")
-				current_seq.push_back(event_type_ptr(new event_type(tr.substr(i + j, 1))));
+			if (i + j < tr.size())
+				current_seq.push_back(tr[i+j]);
 		}
 		if (current_seq.size() >= _order)
 		{
@@ -172,15 +204,15 @@ void split_merge::replay_trace(std::string& tr)
 				current_vertex = _ts.visit_seq(*pi);
 			remove_invalid(paths);
 		}
-		else
-			break;
+        else
+            break;
 	}
-	check_tail(current_vertex, tr, i);
+    check_tail(current_vertex, tr, i);
 }
 
-void split_merge::check_tail(vertex& cv, std::string tr, int i)
+void split_merge::check_tail(vertex& cv, std::vector<event_type_ptr> tr, int i)
 {
-	for (int k = 0; k < _order - 1; k++)
+	for (int k = 0; k < _order - 2; k++)
 	{
 		std::vector<vertex_sequence> t = _ts.dfs_stack(_order, cv);
 		remove_invalid(t);
@@ -188,13 +220,13 @@ void split_merge::check_tail(vertex& cv, std::string tr, int i)
 		edge_vector e = _ts[cv];
 		for (edge& q : e)
 		{
-			if (q.second().get_type() == event_type_ptr(new event_type(tr.substr(i + k, 1))))
+			if (q.second().get_type() == tr[i + k + 1])
 			{
 				cv = q.second();
 				break;
 			}
 		}
-		if (k == _order - 2)
+		if (k + 1 == _order - 2)
 			cv.set_accepting();
 	}
 }

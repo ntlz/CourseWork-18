@@ -12,21 +12,18 @@ class split_merge
 
 public:
     split_merge() { }
-    split_merge(std::vector<std::string> log, int k) :
-        _log(log)
-        , _order(k)
-    { }
+    split_merge(std::vector<std::vector<std::string>> log, int k);
 	void to_json(std::string of);
 	void build(std::string of);
 protected:
-    void process_trace(std::string& trace);
-    void get_pairs(std::string& tr);
-    void get_chains(std::string& tr);
+    void process_trace(std::vector<event_type_ptr>& trace);
+    void get_pairs(std::vector<event_type_ptr>& tr);
+    void get_chains(std::vector<event_type_ptr>& tr);
     //void initialize_heads(event_type_ptr a);
     void process_ts();
-    void replay_trace(std::string & tr);
+    void replay_trace(std::vector<event_type_ptr> & tr);
     std::tuple<bool, bool> check_added(edge & e, const event_sequence& cur);
-    void check_tail(vertex & cv, std::string ts, int i);
+    void check_tail(vertex & cv, std::vector<event_type_ptr> ts, int i);
     void remove_invalid(std::vector<vertex_sequence> paths);
     vertex_sequence recover_seq(const event_sequence & cur_seq, const vertex& cur_vertex);
     void build_init_ts();
@@ -34,7 +31,7 @@ protected:
 
     int _order;
     graph _ts;
-    std::vector<std::string> _log;
+    std::vector <std::vector< event_type_ptr>> _log;
     std::vector<event_sequence> _chains;
     std::map<event_sequence, short> _chains_to_num;
     std::map<ev_pair, short> _pairs;

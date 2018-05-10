@@ -12,8 +12,8 @@ using namespace std;
 
 void save_img(string of)
 {
-	string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
-    //string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
+	//string pathToDot = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
+    string pathToDot = "D:\\Graphviz2.38\\bin\\dot.exe";
     string pathToFile = " \"" + of + "_out.dot\" ";
 	/*char buf[256];
 	GetCurrentDirectoryA(256, buf);
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	int o;
 	string file;
 	string trace;
-	vector<string> log;
+	vector<vector<string>> log;
 	/*if (argc < 3)
 	{
 		cerr << "Usage: " << argv[0] << " order path_to_file" << endl;
@@ -61,15 +61,30 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "input2.txt";
+	file = "all-shorts.txt";
+    //file = "input4.txt";
     size_t ind = file.find_last_of(".");
     string out_file = file.substr(0, ind);
 	//file = "input.csv";
 	ifstream fin(file);
-	while (fin >> trace)
+	/*while (fin >> trace)
 		log.push_back(trace);
-	fin.close();
-
+	fin.close();*/
+    while (fin >> trace)
+    {
+        vector<string> tr;
+        while (true)
+        {
+            size_t i = trace.find_first_of(";");
+            if (i == string::npos)
+            {
+                log.push_back(tr);
+                break;
+            }
+            tr.push_back(trace.substr(0, i));
+            trace = trace.substr(i + 1);
+        }
+    }
 	split_merge sm(log, o);
 	sm.build(out_file);
 	save_img(out_file);
