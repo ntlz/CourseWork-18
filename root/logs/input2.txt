@@ -1,7 +1,10 @@
-a;b;c;d;e;f;
-a;b;c;d;e;g;
+a;b;b;c;d;e;f;
+a;b;c;d;d;e;
 a;b;c;d;f;e;
 a;b;c;d;f;g;
+a;c;
+a;e;
 a;b;d;
+a;b;d;g;
 a;b;d;e;f;
-a;b;d;e;g;
+a;b;d;e;g;g;

@@ -32,6 +32,8 @@ std::vector<vertex_sequence> graph::dfs_stack(int max_length, vertex start, bool
 
         for (auto& r : (*this)[v])
         {
+			if (r.first() == r.second())
+				continue;
             if (!reverse)
             {
                 if (r.first() == v)
@@ -98,7 +100,20 @@ const edge graph::find_edge(const vertex& a, const vertex& b)
 	else
 		return *w;
 }
-
+edge graph::find_edge_ptr(const vertex& a, const event_type_ptr& b)
+{
+	std::set<vertex> p = get_vertices(b);
+	for (auto v : p)
+	{
+		auto w = find_if(_edges.begin(), _edges.end(), [&a, &v](const edge& e) -> bool
+		{
+			return e.first() == a && e.second() == v;
+		});
+		if (w != _edges.end())
+			return *w;			
+	}
+	std::cout << "Я дурак";
+}
 
 void graph::copy_out_edges(vertex & a, vertex & b)
 {

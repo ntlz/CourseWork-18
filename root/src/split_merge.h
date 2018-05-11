@@ -15,17 +15,19 @@ public:
     split_merge(std::vector<std::vector<std::string>> log, int k);
 	void to_json(std::string of);
 	void build(std::string of);
+	void add_loops();
 protected:
     void process_trace(std::vector<event_type_ptr>& trace);
     void get_pairs(std::vector<event_type_ptr>& tr);
     void get_chains(std::vector<event_type_ptr>& tr);
     //void initialize_heads(event_type_ptr a);
     void process_ts();
+	std::vector<event_type_ptr> shrink_trace(std::vector<event_type_ptr> trace);
     void replay_trace(std::vector<event_type_ptr> & tr);
     std::tuple<bool, bool> check_added(edge & e, const event_sequence& cur);
 	void iterate_seq(event_sequence& current_seq, vertex& current_vertex);
 	void check_tail(vertex & cv, std::vector<event_type_ptr> ts, int i);
-    void remove_invalid(std::vector<vertex_sequence> paths);
+    void remove_invalid(std::vector<vertex_sequence> paths, vertex vc);
     vertex_sequence recover_seq(const event_sequence & cur_seq, const vertex& cur_vertex);
     void build_init_ts();
     void refine();
