@@ -67,9 +67,15 @@ int main(int argc, char** argv)
     string out_file = file.substr(0, ind);
 	//file = "input.csv";
 	ifstream fin(file);
+	if (!fin)
+	{
+		cout << "No such file." << endl;
+		return 1;
+	}
 	/*while (fin >> trace)
 		log.push_back(trace);
 	fin.close();*/
+	int k = 0;
     while (fin >> trace)
     {
         vector<string> tr;
@@ -84,9 +90,19 @@ int main(int argc, char** argv)
             tr.push_back(trace.substr(0, i));
             trace = trace.substr(i + 1);
         }
+		k += tr.size();
     }
+	if (log.size() == 0 || k == 0)
+	{
+		cout << "Log is empty or the format is incorrect." << endl;
+		return 1;
+	}
+	cout << "Building FSM..." << endl;
 	split_merge sm(log, o);
 	sm.build(out_file);
 	save_img(out_file);
+	cout << "Data saved in the input file directory." << endl;
 	system("PAUSE");
+
+	return 0;
 }

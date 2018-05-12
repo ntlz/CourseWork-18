@@ -77,8 +77,8 @@ void split_merge::build(std::string of)
 		refine();
 	}
 	//dprint(_ts);
-    out(_ts, of + "_out.dot");
-	to_json(of+"_out.json");
+	out(_ts, of + "_out_" + std::to_string(_order) + ".dot");
+	to_json(of + "_out" + std::to_string(_order) + ".json");
 }
 void split_merge::add_loops()
 {
