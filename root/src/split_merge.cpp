@@ -24,7 +24,8 @@ void out(T&& t, std::string file = "output.dot")
 	out.close();
 }
 
-split_merge::split_merge(std::vector<std::vector<std::string>> log, int k)
+split_merge::split_merge(std::vector<std::vector<std::string>> log, int k, std::map<std::string, std::string> dict) 
+            : _order(k), id_to_act(dict)
 {
     for (std::vector<std::string> a : log)
     {
@@ -33,7 +34,6 @@ split_merge::split_merge(std::vector<std::vector<std::string>> log, int k)
             trace.push_back(event_type_ptr(new event_type(b)));
         _log.push_back(trace);
     }
-    _order = k;
 }
 void split_merge::to_json(std::string of)
 {
@@ -53,7 +53,7 @@ void split_merge::to_json(std::string of)
 	for (auto& e : _ts)
 	{
 		out << "{\n";
-		out << "\"from\":" << e.first() << ",\n\"to\":" << e.second() << ",\n\"track\":\"" << *e.second().get_type() << "\"\n";
+		out << "\"from\":" << e.first() << ",\n\"to\":" << e.second() << ",\n\"track\":\"" << id_to_act[(*e.second().get_type()).get_type()] << "\"\n";
 		out << "},\n";
 	}
 	out << "],\"meta\":{\n\"isAccepting\":[\n";
@@ -62,7 +62,7 @@ void split_merge::to_json(std::string of)
 		if (*(v.is_acc()))
 			out << v << ",\n";
 	}
-	out << "],\"isInitial\":[\n" << _ts.get_init_state() << "\",\n],}\n}";
+	out << "],\"isInitial\":[\n" << _ts.get_init_state() << "\n]}\n}";
 	out.close();
 }
 void split_merge::build(std::string of)

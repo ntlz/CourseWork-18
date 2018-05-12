@@ -12,7 +12,7 @@ class split_merge
 
 public:
     split_merge() { }
-    split_merge(std::vector<std::vector<std::string>> log, int k);
+    split_merge(std::vector<std::vector<std::string>> log, int k, std::map<std::string, std::string> dict);
 	void to_json(std::string of);
 	void build(std::string of);
 	void add_loops();
@@ -39,4 +39,5 @@ protected:
     std::map<event_sequence, short> _chains_to_num;
     std::map<ev_pair, short> _pairs;
     std::vector<edge> _trunk;
+    std::map<std::string, std::string> id_to_act;
 };

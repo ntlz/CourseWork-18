@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "..//..//logs//input3.txt";
+	file = "..//..//..//logs//good_ru_short.txt";
     //file = "input4.txt";
     size_t ind = file.find_last_of(".");
     string out_file = file.substr(0, ind);
@@ -97,12 +97,18 @@ int main(int argc, char** argv)
 		cout << "Log is empty or the format is incorrect." << endl;
 		return 1;
 	}
+    ifstream d("..//..//..//logs//dict_good_ru_red.txt");
+    map<string, string> dict;
+    string line;
+    while (getline(d, line))
+    {
+        size_t i = line.find_first_of(":");
+        dict[line.substr(0, i)] = line.substr(i + 1);
+    }
 	cout << "Building FSM..." << endl;
-	split_merge sm(log, o);
+	split_merge sm(log, o, dict);
 	sm.build(out_file);
 	save_img(out_file);
 	cout << "Data saved in the input file directory." << endl;
 	system("PAUSE");
-
-	return 0;
 }
