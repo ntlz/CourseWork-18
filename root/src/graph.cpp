@@ -100,7 +100,7 @@ const edge graph::find_edge(const vertex& a, const vertex& b)
 	else
 		return *w;
 }
-edge graph::find_edge_ptr(const vertex& a, const event_type_ptr& b)
+std::pair<edge, bool> graph::find_edge_ptr(const vertex& a, const event_type_ptr& b)
 {
 	std::set<vertex> p = get_vertices(b);
 	for (auto v : p)
@@ -110,9 +110,9 @@ edge graph::find_edge_ptr(const vertex& a, const event_type_ptr& b)
 			return e.first() == a && e.second() == v;
 		});
 		if (w != _edges.end())
-			return *w;			
+			return std::make_pair(*w, true);			
 	}
-	std::cout << "Я дурак";
+	return std::make_pair(*_edges.begin(), false);
 }
 
 void graph::copy_out_edges(vertex & a, vertex & b)

@@ -53,13 +53,13 @@ public:
     {
         return _trans.first == e._trans.first && _trans.second == e._trans.second;
     }
-    void visit() { this->_is_visited = true; }
+    void visit() { *_is_visited = true; }
     int get_num_visits() const { return num_visits; }
-    bool get_is_visited() const { return _is_visited; }
+	std::shared_ptr<bool> get_is_visited() const { return _is_visited; }
 
 protected:
     std::pair<vertex, vertex> _trans;
-    bool _is_visited = false;
+	std::shared_ptr<bool> _is_visited = std::make_shared<bool>(false);
     int num_visits = 0;
 };
 
@@ -125,7 +125,7 @@ public:
     void copy_out_edges(vertex& a, vertex& b);
     vertex visit_seq(vertex_sequence& s);
     const edge find_edge(const vertex & a, const vertex & b);
-	edge find_edge_ptr(const vertex & a, const event_type_ptr & b);
+	std::pair<edge, bool> find_edge_ptr(const vertex & a, const event_type_ptr & b);
     //edge& find_edge(const vertex & a, const vertex & b);
     vertex get_init_state() { return vertex(); }
 	std::set<vertex> get_vertices(event_type_ptr etp);

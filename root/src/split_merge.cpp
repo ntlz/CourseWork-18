@@ -84,13 +84,23 @@ void split_merge::add_loops()
 {
 	for (std::vector<event_type_ptr> t : _log)
 	{
-		vertex vc = _ts.find_edge_ptr(_ts.get_init_state(), t[0]).second();
+		bool flag;
+		edge e;
+		vertex vc;
+		std::tie(e, flag) = _ts.find_edge_ptr(_ts.get_init_state(), t[0]);
+		if (flag)
+			vc = e.second();
+		else
+			std::cout << "Я дурак";
 		for (auto it = t.begin(); it + 1!= t.end(); it++)
 		{
 			if (**it != **(it + 1))
 			{
-				edge e = _ts.find_edge_ptr(vc, *(it+1));
-				vc = e.second();
+				std::tie(e, flag) = _ts.find_edge_ptr(vc, *(it+1));
+				if (flag)
+					vc = e.second();
+				else
+					std::cout << "Я дурак";
 			}
 			else
 			{
@@ -109,7 +119,7 @@ void split_merge::refine()
 	{
         vert.insert(t.first());
         vert.insert(t.second());
-		if (!t.get_is_visited())
+		if (!(*t.get_is_visited()))
 			to_remove.insert(t);
 	}
     for (const vertex& v : vert)
@@ -140,11 +150,14 @@ void split_merge::get_pairs(std::vector<event_type_ptr>& tr)
 {
     for (int i = 0; i < tr.size() - 1; ++i)
     {
-        std::pair<event_type_ptr, event_type_ptr> f = std::pair<event_type_ptr, event_type_ptr>(tr[i], tr[i + 1]);
-        if (_pairs.find(f) == _pairs.end())
-            _pairs[f] = 1;
-        else
-            ++_pairs[f];
+		if (*tr[i] != *tr[i + 1])
+		{
+			std::pair<event_type_ptr, event_type_ptr> f = std::pair<event_type_ptr, event_type_ptr>(tr[i], tr[i + 1]);
+			if (_pairs.find(f) == _pairs.end())
+				_pairs[f] = 1;
+			else
+				++_pairs[f];
+		}
     }
 }
 void split_merge::get_chains(std::vector<event_type_ptr>& tr)
@@ -199,7 +212,7 @@ void split_merge::process_ts()
 		//if (u++ == 37)
 		//	std::cout << "Sup";
         replay_trace(tr);
-		//deb_print(_ts);
+		deb_print(_ts);
     }
 }
 std::vector<event_type_ptr> split_merge::shrink_trace(std::vector<event_type_ptr> trace)
@@ -221,12 +234,15 @@ void split_merge::replay_trace(std::vector<event_type_ptr>& trace)
 {
 	std::vector<event_type_ptr> tr = shrink_trace(trace);
 	vertex s = _ts.get_init_state();
-	vertex a = vertex(tr[0]);
-	edge r(s, a);
+	edge r;
+	bool flag;
+	std::tie (r, flag) = _ts.find_edge_ptr(s, tr[0]);
+	if (!flag)
+		r = edge(s, vertex(tr[0]));
     r.visit();
 	_ts.insert_edge(r);
 	vertex current_vertex = r.second();
-	//deb_print(_ts);
+	deb_print(_ts);
 	int i;
 	for (i = 0; i <= tr.size() - _order; i++)
 	{
@@ -287,7 +303,7 @@ void split_merge::check_tail(vertex& cv, std::vector<event_type_ptr> tr, int i)
 	{
 		std::vector<vertex_sequence> t = _ts.dfs_stack(_order, cv);
 		remove_invalid(t, cv);
-		if (i + k + 1 == tr.size() || k == _order - 2)
+		if (i + k + 1 >= tr.size() || k == _order - 2)
 		{
 			cv.set_accepting();
 			break;
@@ -321,7 +337,7 @@ void split_merge::remove_invalid(std::vector<vertex_sequence> paths, vertex vc)
 		for (auto it = p.begin(); it != p.end() && it + 1 != p.end(); it++)
 		{
 			edge n = _ts.find_edge(*it, *(it + 1));
-			if (!n.get_is_visited())
+			if (!(*n.get_is_visited()))
 			{
 				to_remove.insert(n);
 				break;
@@ -416,7 +432,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                         if (e.second().get_type() == inserting.first().get_type())
                         {
                             _ts.copy_out_edges(e.second(), ins3.first());
-							if (e.first() != _ts.get_init_state())
+							//if (e.first() != _ts.get_init_state())
 								_ts.remove_edge(e);
                         }
                     }
@@ -440,7 +456,7 @@ std::tuple<bool, bool> split_merge::check_added(edge& e, const event_sequence& c
 {
     using namespace std;
     vector<vertex_sequence> forw, revs, temp, temp2;
-    bool flag_inv = false, flag_des = false;
+    bool flag_inv = false, flag_des = true;
 	vertex init = _ts.get_init_state();
     temp = _ts.dfs_stack(_order, e.second(), true);
 	temp2.resize(temp.size());

@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "..//..//logs//good_ru.txt";
+	file = "..//..//logs//input3.txt";
     //file = "input4.txt";
     size_t ind = file.find_last_of(".");
     string out_file = file.substr(0, ind);
