@@ -53,7 +53,10 @@ void split_merge::to_json(std::string of)
 	for (auto& e : _ts)
 	{
 		out << "{\n";
-		out << "\"from\":" << e.first() << ",\n\"to\":" << e.second() << ",\n\"track\":\"" << id_to_act[(*e.second().get_type()).get_type()] << "\"\n";
+		if (id_to_act.size() == 0)
+			out << "\"from\":" << e.first() << ",\n\"to\":" << e.second() << ",\n\"track\":\"" << *e.second().get_type() << "\"\n";
+		else
+			out << "\"from\":" << e.first() << ",\n\"to\":" << e.second() << ",\n\"track\":\"" << id_to_act[e.second().get_type()->get_type()] << "\"\n";
 		out << "},\n";
 	}
 	out << "],\"meta\":{\n\"isAccepting\":[\n";
@@ -70,13 +73,10 @@ void split_merge::build(std::string of)
 	for (std::vector<event_type_ptr> t : _log)
 		process_trace(t);
     build_init_ts();
-	if (_order > 2)
-	{
 		process_ts();
         std::cout << "Refining..." << std::endl;
 		add_loops();
 		refine();
-	}
 	//dprint(_ts);
 	out(_ts, of + "_out_" + std::to_string(_order) + ".dot");
 	to_json(of + "_out_" + std::to_string(_order) + ".json");
@@ -213,7 +213,7 @@ void split_merge::process_ts()
 		//if (u++ == 37)
 		//	std::cout << "Sup";
         replay_trace(tr);
-        std::cout << "Processed trace " << i << " of " << _log.size() << std::endl;
+		std::cout << "Processed trace " << i + 1 << " of " << _log.size() << std::endl;
 		//deb_print(_ts);
     }
 }
