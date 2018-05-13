@@ -125,7 +125,7 @@ public:
     void copy_out_edges(vertex& a, vertex& b);
     vertex visit_seq(vertex_sequence& s);
     const edge find_edge(const vertex & a, const vertex & b);
-	std::pair<edge, bool> find_edge_ptr(const vertex & a, const event_type_ptr & b);
+	std::tuple<edge, bool> find_edge_ptr(const vertex & a, const event_type_ptr & b);
     //edge& find_edge(const vertex & a, const vertex & b);
     vertex get_init_state() { return vertex(); }
 	std::set<vertex> get_vertices(event_type_ptr etp);

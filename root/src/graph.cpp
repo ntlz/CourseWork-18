@@ -100,7 +100,7 @@ const edge graph::find_edge(const vertex& a, const vertex& b)
 	else
 		return *w;
 }
-std::pair<edge, bool> graph::find_edge_ptr(const vertex& a, const event_type_ptr& b)
+std::tuple<edge, bool> graph::find_edge_ptr(const vertex& a, const event_type_ptr& b)
 {
 	std::set<vertex> p = get_vertices(b);
 	for (auto v : p)

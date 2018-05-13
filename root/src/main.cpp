@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 		sm.build();
 	}*/
 	o = 3;
-	file = "..//..//..//logs//good_ru_short.txt";
+	file = "..//..//..//logs//good_ru.txt";
     //file = "input4.txt";
     size_t ind = file.find_last_of(".");
     string out_file = file.substr(0, ind);
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 		cout << "Log is empty or the format is incorrect." << endl;
 		return 1;
 	}
-    ifstream d("..//..//..//logs//dict_good_ru_red.txt");
+    ifstream d("..//..//..//logs//dict_good_ru.txt");
     map<string, string> dict;
     string line;
     while (getline(d, line))

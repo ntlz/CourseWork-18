@@ -73,12 +73,13 @@ void split_merge::build(std::string of)
 	if (_order > 2)
 	{
 		process_ts();
+        std::cout << "Refining..." << std::endl;
 		add_loops();
 		refine();
 	}
 	//dprint(_ts);
 	out(_ts, of + "_out_" + std::to_string(_order) + ".dot");
-	to_json(of + "_out" + std::to_string(_order) + ".json");
+	to_json(of + "_out_" + std::to_string(_order) + ".json");
 }
 void split_merge::add_loops()
 {
@@ -201,7 +202,7 @@ void split_merge::build_init_ts()
 		}*/
         //std::cout << *q.first.first << "->" << *q.first.second << std::endl;
     }
-	deb_print(_ts);
+	//deb_print(_ts);
 }
 void split_merge::process_ts()
 {
@@ -212,7 +213,8 @@ void split_merge::process_ts()
 		//if (u++ == 37)
 		//	std::cout << "Sup";
         replay_trace(tr);
-		deb_print(_ts);
+        std::cout << "Processed trace " << i << " of " << _log.size() << std::endl;
+		//deb_print(_ts);
     }
 }
 std::vector<event_type_ptr> split_merge::shrink_trace(std::vector<event_type_ptr> trace)
@@ -242,7 +244,7 @@ void split_merge::replay_trace(std::vector<event_type_ptr>& trace)
     r.visit();
 	_ts.insert_edge(r);
 	vertex current_vertex = r.second();
-	deb_print(_ts);
+	//deb_print(_ts);
 	int i;
 	for (i = 0; i <= tr.size() - _order; i++)
 	{
@@ -277,8 +279,8 @@ void split_merge::iterate_seq(event_sequence& current_seq, vertex& current_verte
 {
 	//deb_print(_ts);
 	std::vector<vertex_sequence> paths = _ts.dfs_stack(_order, current_vertex);
-	std::cout << "Current vertex: " << current_vertex << std::endl;
-	std::cout << "Current sequence: " << current_seq << std::endl;
+	//std::cout << "Current vertex: " << current_vertex << std::endl;
+	//std::cout << "Current sequence: " << current_seq << std::endl;
 	//std::cout << "All sequences: " << std::endl;
 	//for (auto t : paths)
 	//	std::cout << t << std::endl;
@@ -365,7 +367,6 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
             if (f.first() == lc && f.second() == *(it + 1)) // ищем нужную вершину, которая следующая в последовательности
             { // сравниваем первую вершину с lc,  а не с *it!
                 recovered.push_back(f.second());
-
 				prev = lc;
                 lc = f.second();
                 found = true;
