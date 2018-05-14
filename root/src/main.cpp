@@ -68,6 +68,8 @@ int main(int argc, char** argv)
 	{
 		cout << "Enter log filename: ";
 		cin >> file;
+		if (file == "exit")
+			return 0;
 		size_t ind = file.find_last_of(".");
 		out_file = file.substr(0, ind);
 		fin = ifstream(file);
@@ -91,6 +93,8 @@ int main(int argc, char** argv)
 		cin >> c;
 		try
 		{
+			if (c == "exit")
+				return 0;
 			o = stoi(c);
 		}
 		catch (invalid_argument e)
