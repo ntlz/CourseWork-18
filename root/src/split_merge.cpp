@@ -91,8 +91,8 @@ void split_merge::add_loops()
 		std::tie(e, flag) = _ts.find_edge_ptr(_ts.get_init_state(), t[0]);
 		if (flag)
 			vc = e.second();
-		else
-			std::cout << "Я дурак";
+		/*else
+			std::cout << "Я дурак";*/
 		for (auto it = t.begin(); it + 1!= t.end(); it++)
 		{
 			if (**it != **(it + 1))
@@ -100,8 +100,8 @@ void split_merge::add_loops()
 				std::tie(e, flag) = _ts.find_edge_ptr(vc, *(it+1));
 				if (flag)
 					vc = e.second();
-				else
-					std::cout << "Я дурак";
+				/*else
+					std::cout << "Я дурак";*/
 			}
 			else
 			{
@@ -214,7 +214,7 @@ void split_merge::process_ts()
 		//	std::cout << "Sup";
         replay_trace(tr);
 		std::cout << "Processed trace " << i + 1 << " of " << _log.size() << std::endl;
-		deb_print(_ts);
+		//deb_print(_ts);
     }
 }
 std::vector<event_type_ptr> split_merge::shrink_trace(std::vector<event_type_ptr> trace)
@@ -444,7 +444,7 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                     _ts.insert_edge(ins3);
 					prev = ins3.first();
                     lc = ins3.second();
-					deb_print(_ts);
+					//deb_print(_ts);
                 }
                 recovered.push_back(lc);
             }

@@ -152,8 +152,8 @@ vertex graph::visit_seq(vertex_sequence & s)
         });*/
 		if (w != temp.end())
 			w->visit();
-		else
-			std::cout << "Я дурак";
+		/*else
+			std::cout << "Я дурак";*/
     }
     _edges = edge_set(temp.begin(), temp.end());
     return s[1];
