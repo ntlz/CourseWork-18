@@ -214,7 +214,7 @@ void split_merge::process_ts()
 		//	std::cout << "Sup";
         replay_trace(tr);
 		std::cout << "Processed trace " << i + 1 << " of " << _log.size() << std::endl;
-		//deb_print(_ts);
+		deb_print(_ts);
     }
 }
 std::vector<event_type_ptr> split_merge::shrink_trace(std::vector<event_type_ptr> trace)
@@ -442,9 +442,9 @@ vertex_sequence split_merge::recover_seq(const event_sequence& cur_seq, const ve
                     _ts.insert_edge(qw);
 					ins3.visit();
                     _ts.insert_edge(ins3);
-					prev = lc;
+					prev = ins3.first();
                     lc = ins3.second();
-					//deb_print(_ts);
+					deb_print(_ts);
                 }
                 recovered.push_back(lc);
             }

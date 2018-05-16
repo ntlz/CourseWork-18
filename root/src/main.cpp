@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 		cout << "Log is empty or the format is incorrect." << endl;
 		return 1;
 	}
-	//ifstream d("..//..//logs//dict_log05.txt");
+	//ifstream d("..//..//logs//dict_all-shorts.txt");
 	map<string, string> dict;
 	string line;
 	/*while (getline(d, line))
